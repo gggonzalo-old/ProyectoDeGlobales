@@ -1,0 +1,71 @@
+mutation {
+  createUser(name: "Bob") {
+    _id
+    name
+    posts {
+      _id
+      description
+      imageUrl
+    }
+    friends
+    enrolledEvents
+  }
+}
+mutation {
+  createOrganizer(
+    name: "HopeCR"
+    description: "Buscamos ayudar al planeta"
+    imageUrl: "https://dcassetcdn.com/design_img/792887/191894/191894_4705188_792887_image.jpg"
+  ) {
+    _id
+    name
+    description
+    imageUrl
+    events
+  }
+}
+mutation {
+  createEvent(
+    _organizer: ""
+    name: "Jacó cleanup"
+    description: "Acompañenos a Jacó para colaborar"
+    imagesUrls: []
+  ) {
+    _id
+    name
+    description
+    imagesUrls
+  }
+}
+mutation {
+  createUserPost(_user: "5ed13f4131b48d4d0db4a5fd", description: "My post"
+  ) {
+    _id
+    description
+    imageUrl
+    usersWhoLiked
+    date
+  }
+}
+mutation {
+  enrollEvent(_user: "", _event: "")
+}
+mutation {
+  likePost(_user: "5ed13f4131b48d4d0db4a5fd",_post:"5ed13f4831b48d4d0db4a5fe")
+}
+mutation {
+  addFriend(_user: "5ed0e003b20a0c22ec30e5e8", _friend: "5ed0e045b20a0c22ec30e5e9")
+}
+{
+  getUser(_user:"5ed12c87a064ea110923cb49"){
+    _id
+    name
+    posts {
+      _id
+      description
+      imageUrl
+    }
+    friends
+    enrolledEvents
+  }
+}

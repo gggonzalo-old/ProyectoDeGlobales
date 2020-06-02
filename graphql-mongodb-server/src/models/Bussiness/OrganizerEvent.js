@@ -6,6 +6,12 @@ export const OrganizerEvent = mongoose.model(
     name: String,
     description: String,
     imagesUrls: [String],
+    usersEnrolled: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   "events"
 );

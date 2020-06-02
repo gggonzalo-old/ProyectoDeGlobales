@@ -1,34 +1,42 @@
 import { gql } from "apollo-server-express";
 
 export const typeDefs = gql`
+  scalar Date
+
   type Organizer {
     _id: String!
     name: String!
     description: String!
     imageUrl: String!
-    events: [String!]!
+    posts: [Post!]!
+    events: [OrganizerEvent!]!
   }
-  type Event {
+  type OrganizerEvent {
     _id: String!
     name: String!
     description: String!
     imagesUrls: [String!]!
+    usersEnrolled: [User!]!
   }
   type User {
     _id: String!
     name: String!
     posts: [Post!]!
-    friends: [String!]!
-    enrolledEvents: [String!]!
+    friends: [User!]!
+    enrolledEvents: [OrganizerEvent!]!
   }
   type Post {
     _id: String!
+    date: Date!
     description: String!
     imageUrl: String!
+    usersWhoLiked: [User!]!
   }
+
   type Query {
-    getUserPosts(_user: String!): [Post!]!
+    getUser(_user: String!): User!
     getUsers: [User!]!
+    getOrganizer(_organizer: String!): Organizer!
   }
   type Mutation {
     createOrganizer(
@@ -36,15 +44,18 @@ export const typeDefs = gql`
       description: String!
       imageUrl: String!
     ): Organizer!
+    createOrganizerPost(_organizer: String!, description: String!): Post!
     createEvent(
       _organizer: String!
       name: String!
       description: String!
       imagesUrls: [String!]!
-    ): Event!
+    ): OrganizerEvent!
     createUser(name: String!): User!
-    createPost(_user: String!, description: String!): Post!
+    createUserPost(_user: String!, description: String!): Post!
     addFriend(_user: String!, _friend: String!): Boolean
     enrollEvent(_user: String!, _event: String!): Boolean
+    likeOrganizerPost(_user: String!, _post: String!): Boolean
+    likeUserPost(_user: String!, _post: String!): Boolean
   }
 `;

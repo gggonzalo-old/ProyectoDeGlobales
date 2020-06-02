@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
+import { Post } from "../Post";
+import { OrganizerEvent } from "./OrganizerEvent";
 
 export const Organizer = mongoose.model("Organizer", {
   name: String,
   description: String,
   imageUrl: String,
-  events: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Event",
-    },
-  ],
+  posts: [Post.schema],
+  events: [OrganizerEvent.schema],
 });
