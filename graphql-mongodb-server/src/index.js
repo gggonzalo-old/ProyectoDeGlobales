@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import { ApolloServer } from "apollo-server-express";
 import express from "express";
 import mongoose from "mongoose";
@@ -14,13 +16,16 @@ const startServer = async () => {
 
   server.applyMiddleware({ app });
 
-  await mongoose.connect("mongodb://localhost:27017/test", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  await mongoose.connect(
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@proyectodeglobales-rmjad.mongodb.net/db?retryWrites=true&w=majority`,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    }
+  );
 
-  app.listen({ port: 4000 }, () =>
-    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+  app.listen({ port: 3030 }, () =>
+    console.log(`🚀 Server ready at http://localhost:3030${server.graphqlPath}`)
   );
 };
 
