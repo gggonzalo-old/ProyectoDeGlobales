@@ -5,24 +5,26 @@ import 'package:flutterapp/pages/search.dart';
 import 'package:flutterapp/pages/events.dart';
 
 class BottomNavigation extends StatefulWidget {
-  BottomNavigation({Key key, this.title}) : super(key: key);
-
-  final String title;
 
   @override
   _BottomNavigation createState() => _BottomNavigation();
 }
 
 class _BottomNavigation extends State<BottomNavigation> {
+  
   int _selectedIndex = 0;
-  static const TextStyle optionStyle =
-      TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-  static List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    SearchGalleryPage(),
-    EventsPage(),
-    ProfilePage()
-  ];
+
+  static List<Widget> _widgetOptions = [];
+  @override
+  void initState() {
+    super.initState();
+    _widgetOptions = <Widget>[
+      HomePage(),
+      SearchGalleryPage(),
+      EventsPage(),
+      ProfilePage()
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

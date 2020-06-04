@@ -69,15 +69,7 @@ class _SearchGalleryPageState extends State<SearchGalleryPage> {
         body: TabBarView(
           children: [
             _buildSearchPosts(context),
-            Provider<UserBLoC>(
-              dispose: (_, bloc) => bloc.dispose(),
-              create: (BuildContext context) {
-                return UserBLoC(
-                  user: UserProvider(),
-                );
-              },
-              child: UserWidget(),
-            ),
+            UserWidget.create(context)
           ],
         ),
       ),

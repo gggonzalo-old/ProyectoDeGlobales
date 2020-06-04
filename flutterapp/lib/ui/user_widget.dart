@@ -5,10 +5,18 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class UserWidget extends StatelessWidget {
+  static Widget create(BuildContext context) {
+    return Provider<UserBloc>(
+      create: (_) => UserBloc(),
+      child: UserWidget(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bloc = Provider.of<UserBloc>(context);
     return StreamBuilder(
-      stream: Provider.of<UserBLoC>(context).userList,
+      stream: bloc.userList,
       builder: (context, userSnapshot) {
         if (!userSnapshot.hasData) {
           return Center(

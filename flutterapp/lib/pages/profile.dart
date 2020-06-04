@@ -1,11 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/pages/network_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutterapp/pages/settings.dart';
+import 'package:flutterapp/services/authentication.dart';
+import 'package:flutterapp/view_models/user_model.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
+    final authentication = Provider.of<AuthenticationBase>(context, listen: false);
+    return FutureBuilder<UserModel>(
+      future: authentication.currentUser(),
+      builder: (BuildContext context, AsyncSnapshot<UserModel> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else {
+            UserModel user = snapshot.data;
+            return _buildProfile(context, user);
+          }
+        }
+      },
+    );
+  }
+
+  Widget _buildProfile(BuildContext context, UserModel user) {
     return Scaffold(
       body: DefaultTabController(
         length: 2,
@@ -14,7 +36,10 @@ class ProfilePage extends StatelessWidget {
             return [
               SliverList(
                 delegate: SliverChildListDelegate(
-                  _buildHeaderProfile(context),
+                  List.generate(
+                    1,
+                    (index) => _buildHeader(context, user),
+                  ),
                 ),
               ),
             ];
@@ -64,14 +89,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildHeaderProfile(BuildContext context) {
-    List<Widget> profileHeader = List<Widget>();
-
-    profileHeader.add(_buildHeader(context));
-
-    return profileHeader;
-  }
-
   Widget _buildFavoriteListItem() {
     return Container(
       padding: EdgeInsets.only(bottom: 4.0),
@@ -92,12 +109,30 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Container _buildHeader(BuildContext context) {
+  Container _buildHeader(BuildContext context, UserModel user) {
     return Container(
-      margin: EdgeInsets.only(top: 50.0),
+      margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20),
       height: 240.0,
       child: Stack(
         children: <Widget>[
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Settings(),
+                ),
+              );
+            },
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                  right: 8,
+                  child: Icon(Icons.settings),
+                ),
+              ],
+            ),
+          ),
           Container(
             padding: EdgeInsets.only(
                 top: 40.0, left: 40.0, right: 40.0, bottom: 10.0),
@@ -112,7 +147,7 @@ class ProfilePage extends StatelessWidget {
                     height: 50.0,
                   ),
                   Text(
-                    "Gonzalo González ",
+                    user.name,
                     style: Theme.of(context).textTheme.headline6,
                   ),
                   SizedBox(
