@@ -1,36 +1,30 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:flutterapp/blocs/user_bloc.dart';
-import 'package:flutterapp/providers/users_provider.dart';
-import 'package:flutterapp/ui/user_widget.dart';
+import 'package:flutterapp/services/data.dart';
+import 'package:flutterapp/view_models/search_model.dart';
+import 'package:flutterapp/widgets/users_list_widget.dart';
+import 'package:flutterapp/widgets/posts_list_widget.dart';
 import 'package:provider/provider.dart';
 
-class SearchGalleryPage extends StatefulWidget {
+class SearchPage extends StatefulWidget {
+  SearchPage({Key key, @required this.searchModel}) : super(key: key);
+  final SearchModel searchModel;
+  static Widget create(BuildContext context) {
+    final dataService = Provider.of<DataService>(context);
+    return ChangeNotifierProvider<SearchModel>(
+      create: (_) => SearchModel(dataService: dataService),
+      child: Consumer<SearchModel>(
+        builder: (context, model, _) => SearchPage(
+          searchModel: model,
+        ),
+      ),
+    );
+  }
+
   @override
-  _SearchGalleryPageState createState() => _SearchGalleryPageState();
+  _SearchPageState createState() => _SearchPageState();
 }
 
-class _SearchGalleryPageState extends State<SearchGalleryPage> {
-  final List<StaggeredTile> _staggeredTiles = const <StaggeredTile>[
-    const StaggeredTile.count(2, 2),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(2, 2),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(2, 1),
-    const StaggeredTile.count(1, 2),
-    const StaggeredTile.count(1, 1),
-  ];
-
+class _SearchPageState extends State<SearchPage> {
   /*
 
 
@@ -39,14 +33,14 @@ class _SearchGalleryPageState extends State<SearchGalleryPage> {
 
   */
 
-  TextEditingController controller;
+  TextEditingController _search = TextEditingController();
 
   void changeFollowStatus() {}
+  SearchModel get searchModel => widget.searchModel;
 
-  @override
-  void initState() {
-    super.initState();
-    controller = TextEditingController();
+  void _toggleSearchType(SearchType searchType) {
+    searchModel.toggleSearchType(searchType);
+    _search.clear();
   }
 
   @override
@@ -57,42 +51,33 @@ class _SearchGalleryPageState extends State<SearchGalleryPage> {
         appBar: AppBar(
           leading: Icon(Icons.search),
           title: TextField(
-            controller: controller,
+            controller: _search,
             cursorColor: Colors.white,
             style: TextStyle(color: Colors.white),
+            onChanged: searchModel.updateSearch,
           ),
-          bottom: TabBar(tabs: [
-            Tab(icon: Icon(Icons.photo_library)),
-            Tab(icon: Icon(Icons.person)),
-          ]),
+          bottom: TabBar(
+            tabs: [
+              Tab(icon: Icon(Icons.photo_library)),
+              Tab(
+                icon: Icon(Icons.person),
+              ),
+            ],
+            onTap: (index) => {
+              if (index == 0)
+                {_toggleSearchType(SearchType.posts)}
+              else
+                {_toggleSearchType(SearchType.users)}
+            },
+          ),
         ),
         body: TabBarView(
           children: [
-            _buildSearchPosts(context),
-            UserWidget.create(context)
+            PostsList(model: searchModel),
+            UsersList(model: searchModel)
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildSearchPosts(BuildContext context) {
-    return StaggeredGridView.countBuilder(
-      padding: const EdgeInsets.all(8.0),
-      crossAxisCount: 3,
-      itemCount: 16,
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-              image: CachedNetworkImageProvider(
-                  'https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media'),
-              fit: BoxFit.cover,
-            ),
-            borderRadius: BorderRadius.circular(10.0)),
-      ),
-      staggeredTileBuilder: (index) => _staggeredTiles[index],
-      mainAxisSpacing: 8.0,
-      crossAxisSpacing: 8.0,
     );
   }
 }

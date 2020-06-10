@@ -1,12 +1,8 @@
 import 'dart:async';
-
-import 'package:flutterapp/data_models/user.dart';
-import 'package:flutterapp/providers/users_provider.dart';
-import 'package:flutterapp/view_models/user_model.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
-class UserBloc {
+class UserBloc {/*
   final StreamController<bool> _isLoadingController = StreamController<bool>();
   Stream<bool> get isLoadingStream => _isLoadingController.stream;
   void dispose() {
@@ -39,8 +35,9 @@ class UserBloc {
             id: dataModel.id,
             name: dataModel.name,
             username: dataModel.username,
+            photoUrl: "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media"
           ),
         )
         .toList(growable: false);
-  }
+  }*/
 }

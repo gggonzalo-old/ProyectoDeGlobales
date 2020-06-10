@@ -1,65 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutterapp/blocs/login_bloc.dart';
-import 'package:flutterapp/pages/bottom_navigation.dart';
+import 'package:flutterapp/view_models/log_in_model.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:provider/provider.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
-class LoginPage extends StatelessWidget {
+class LogInPage extends StatefulWidget {
+  LogInPage({Key key, @required this.model}) : super(key: key);
+  final LogInModel model;
+
   static Widget create(BuildContext context) {
-    return Provider<LogInBloc>(
-      create: (_) => LogInBloc(),
-      child: LoginPage(),
+    final authentication = Provider.of<AuthenticationBase>(context);
+    return ChangeNotifierProvider<LogInModel>(
+      create: (_) => LogInModel(authenticationBase: authentication),
+      child: Consumer<LogInModel>(
+        builder: (context, model, _) => LogInPage(
+          model: model,
+        ),
+      ),
     );
   }
 
-  Future<void> _signInGoogle(BuildContext context) async {
-    final bloc = Provider.of<LogInBloc>(context, listen: false);
+  @override
+  _LogInPage createState() => _LogInPage();
+}
+
+class _LogInPage extends State<LogInPage> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+  LogInModel get model => widget.model;
+
+  Future<void> _signWithEmailAndPassword() async {
     try {
-      bloc.setIsLoading(true);
-      final authentication =
-          Provider.of<AuthenticationBase>(context, listen: false);
-      authentication.signInGoogle();
+      model.signWithEmailAndPassword();
     } catch (e) {
       print(e.toString());
-    } finally {
-      bloc.setIsLoading(false);
     }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    try {
+      model.signInGoogle();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void _toggleFormType() {
+    model.toggleFormType();
+    _emailController.clear();
+    _passwordController.clear();
+  }
+
+  void _emailEditingCompleted() {
+    final newFocus = model.emailValidator.isValid(model.email)
+        ? _passwordFocusNode
+        : _emailFocusNode;
+    FocusScope.of(context).requestFocus(newFocus);
   }
 
   @override
   Widget build(BuildContext context) {
-    final bloc = Provider.of<LogInBloc>(context, listen: false);
     return Scaffold(
       body: Stack(
         children: <Widget>[
           _buildBackground(context),
-          StreamBuilder<bool>(
-              stream: bloc.isLoadingStream,
-              initialData: false,
-              builder: (context, snapshot) {
-                return ListView(
-                  children: <Widget>[
-                    Container(
-                      height: MediaQuery.of(context).orientation ==
-                              Orientation.portrait
-                          ? MediaQuery.of(context).size.height / 1.5
-                          : 275,
-                      child: Center(
-                          child: _buildLogInInputs(context, snapshot.data)),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).orientation ==
-                              Orientation.portrait
-                          ? MediaQuery.of(context).size.height / 8
-                          : 30,
-                    ),
-                    _buildThirdPartySignIn(context, snapshot.data),
-                  ],
-                );
-              }),
+          ListView(
+            children: <Widget>[
+              Container(
+                height:
+                    MediaQuery.of(context).orientation == Orientation.portrait
+                        ? MediaQuery.of(context).size.height / 1.5
+                        : 275,
+                child: Center(child: _buildLogInInputs(context)),
+              ),
+              SizedBox(
+                height:
+                    MediaQuery.of(context).orientation == Orientation.portrait
+                        ? MediaQuery.of(context).size.height / 8
+                        : 30,
+              ),
+              _buildThirdPartySignIn(context),
+            ],
+          ),
         ],
       ),
     );
@@ -94,7 +120,12 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _buildLogInInputs(BuildContext context, bool isLoading) {
+  Widget _buildLogInInputs(BuildContext context) {
+    // utilizar primary and second text
+    //
+    //
+    ///
+    //
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -105,88 +136,114 @@ class LoginPage extends StatelessWidget {
                 color: Colors.white70,
                 fontWeight: FontWeight.bold,
                 fontSize: 28.0)),
-        Card(
-          margin: EdgeInsets.only(left: 30, right: 30, top: 30),
-          elevation: 11,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(40))),
-          child: TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.person,
-                color: Colors.black26,
-              ),
-              hintText: "Username",
-              hintStyle: TextStyle(color: Colors.black26),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.all(Radius.circular(40.0)),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 16.0,
-              ),
-            ),
-          ),
-        ),
-        Card(
-          margin: EdgeInsets.only(left: 30, right: 30, top: 20),
-          elevation: 11,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(
-              Radius.circular(40),
-            ),
-          ),
-          child: TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.lock,
-                color: Colors.black26,
-              ),
-              suffixIcon: Icon(
-                Icons.remove_red_eye,
-                color: Colors.black26,
-              ),
-              hintText: "Password",
-              hintStyle: TextStyle(
-                color: Colors.black26,
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderSide: BorderSide.none,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(40.0),
-                ),
-              ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 16.0,
-              ),
-            ),
-            obscureText: true,
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.only(left: 30, right: 30, top: 30),
-          child: RaisedButton(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            color: Colors.green[700],
-            onPressed: () {},
-            elevation: 11,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(40.0))),
-            child: Text("Login", style: TextStyle(color: Colors.white70)),
-          ),
-        ),
+        _buildEmailTextInput(),
+        _buildPasswordTextInput(),
+        _buildLoginButton(),
       ],
     );
   }
 
-  Widget _buildThirdPartySignIn(BuildContext context, bool isLoading) {
+  Container _buildLoginButton() {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.only(left: 30, right: 30, top: 30),
+      child: RaisedButton(
+        padding: EdgeInsets.symmetric(vertical: 16.0),
+        color: Colors.green[700],
+        onPressed: model.canSubmit ? _signWithEmailAndPassword : null,
+        elevation: 11,
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(40.0))),
+        child: Text("Login", style: TextStyle(color: Colors.white70)),
+      ),
+    );
+  }
+
+  Widget _buildEmailTextInput() {
+    return Card(
+      margin: EdgeInsets.only(left: 30, right: 30, top: 30),
+      elevation: 11,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(40))),
+      child: TextField(
+        controller: _emailController,
+        keyboardType: TextInputType.emailAddress,
+        focusNode: _emailFocusNode,
+        onEditingComplete: () {
+          _emailEditingCompleted();
+        },
+        textInputAction: TextInputAction.next,
+        onChanged: model.updateEmail,
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            Icons.person,
+            color: Colors.black26,
+          ),
+          hintText: "Username",
+          hintStyle: TextStyle(color: Colors.black26),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.all(Radius.circular(40.0)),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 16.0,
+          ),
+          errorText: model.emailErrorText,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordTextInput() {
+    return Card(
+      margin: EdgeInsets.only(left: 30, right: 30, top: 20),
+      elevation: 11,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(40),
+        ),
+      ),
+      child: TextField(
+        controller: _passwordController,
+        textInputAction: TextInputAction.done,
+        focusNode: _passwordFocusNode,
+        onChanged: model.updatePassword,
+        decoration: InputDecoration(
+          prefixIcon: Icon(
+            Icons.lock,
+            color: Colors.black26,
+          ),
+          suffixIcon: Icon(
+            Icons.remove_red_eye,
+            color: Colors.black26,
+          ),
+          hintText: "Password",
+          hintStyle: TextStyle(
+            color: Colors.black26,
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderSide: BorderSide.none,
+            borderRadius: BorderRadius.all(
+              Radius.circular(40.0),
+            ),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 16.0,
+          ),
+          errorText: model.passwordErrorText,
+        ),
+        obscureText: true,
+      ),
+    );
+  }
+
+  Widget _buildThirdPartySignIn(BuildContext context) {
     return Center(
       child: Column(
         children: <Widget>[
@@ -207,7 +264,7 @@ class LoginPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(40)),
                   ),
-                  onPressed: isLoading ? null : () {},
+                  onPressed: model.isLoading ? null : () {},
                 ),
               ),
               SizedBox(
@@ -221,10 +278,10 @@ class LoginPage extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(40)),
                   ),
-                  onPressed: isLoading
+                  onPressed: model.isLoading
                       ? null
                       : () {
-                          _signInGoogle(context);
+                          _signInWithGoogle();
                         },
                 ),
               ),

@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/data_models/comment.dart';
-import 'package:flutterapp/data_models/post.dart';
+import 'package:flutterapp/models/homeposts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class ViewPostScreen extends StatefulWidget {
-  final Post post;
-
-  ViewPostScreen({this.post});
+class PostDetailsPage extends StatefulWidget {
+  PostDetailsPage({@required this.homePost});
+  final HomePost homePost;
 
   @override
-  _ViewPostScreenState createState() => _ViewPostScreenState();
+  _PostDetailsPageState createState() => _PostDetailsPageState();
 }
 
-class _ViewPostScreenState extends State<ViewPostScreen> {
+class _PostDetailsPageState extends State<PostDetailsPage> {
+
+  HomePost get homePost => widget.homePost;
+
   Widget _buildComment(int index) {
     return Padding(
       padding: EdgeInsets.all(10.0),
@@ -35,19 +36,20 @@ class _ViewPostScreenState extends State<ViewPostScreen> {
               child: Image(
                 height: 50.0,
                 width: 50.0,
-                image: CachedNetworkImageProvider(comments[index].authorImageUrl),
+                image:
+                    CachedNetworkImageProvider(homePost.post.comments[index].user.photoUrl),
                 fit: BoxFit.cover,
               ),
             ),
           ),
         ),
         title: Text(
-          comments[index].authorName,
+          homePost.post.comments[index].user.name,
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: Text(comments[index].text),
+        subtitle: Text(homePost.post.comments[index].user.name),
         /*trailing: IconButton(
           icon: Icon(
             Icons.favorite_border,
@@ -109,19 +111,20 @@ class _ViewPostScreenState extends State<ViewPostScreen> {
                                       child: Image(
                                         height: 50.0,
                                         width: 50.0,
-                                        image: CachedNetworkImageProvider(widget.post.authorImageUrl),
+                                        image: CachedNetworkImageProvider(
+                                            homePost.post.imageUrl),
                                         fit: BoxFit.cover,
                                       ),
                                     ),
                                   ),
                                 ),
                                 title: Text(
-                                  widget.post.authorName,
+                                  homePost.post.date,
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                subtitle: Text(widget.post.timeAgo),
+                                subtitle: Text(homePost.post.date),
                                 trailing: IconButton(
                                   icon: Icon(Icons.more_horiz),
                                   onPressed: () => print('More'),
@@ -146,7 +149,8 @@ class _ViewPostScreenState extends State<ViewPostScreen> {
                                 ),
                               ],
                               image: DecorationImage(
-                                image: CachedNetworkImageProvider(widget.post.imageUrl),
+                                image: CachedNetworkImageProvider(
+                                    homePost.post.imageUrl),
                                 fit: BoxFit.fitHeight,
                               ),
                             ),
@@ -286,7 +290,8 @@ class _ViewPostScreenState extends State<ViewPostScreen> {
                       child: Image(
                         height: 48.0,
                         width: 48.0,
-                        image: CachedNetworkImageProvider(widget.post.authorImageUrl),
+                        image: CachedNetworkImageProvider(
+                            homePost.post.imageUrl),
                         fit: BoxFit.cover,
                       ),
                     ),

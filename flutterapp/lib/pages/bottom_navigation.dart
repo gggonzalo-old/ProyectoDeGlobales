@@ -5,25 +5,18 @@ import 'package:flutterapp/pages/search.dart';
 import 'package:flutterapp/pages/events.dart';
 
 class BottomNavigation extends StatefulWidget {
-
   @override
   _BottomNavigation createState() => _BottomNavigation();
 }
 
 class _BottomNavigation extends State<BottomNavigation> {
-  
   int _selectedIndex = 0;
 
   static List<Widget> _widgetOptions = [];
   @override
   void initState() {
     super.initState();
-    _widgetOptions = <Widget>[
-      HomePage(),
-      SearchGalleryPage(),
-      EventsPage(),
-      ProfilePage()
-    ];
+    _widgetOptions = <Widget>[];
   }
 
   void _onItemTapped(int index) {
@@ -34,6 +27,10 @@ class _BottomNavigation extends State<BottomNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    _widgetOptions.add(HomePage.create(context));
+    _widgetOptions.add(SearchPage.create(context));
+    _widgetOptions.add(EventsPage());
+    _widgetOptions.add(ProfilePage());
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

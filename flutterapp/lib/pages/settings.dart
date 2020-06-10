@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutterapp/services/authentication.dart';
-import 'package:flutterapp/view_models/user_model.dart';
+import 'package:flutterapp/models/user.dart';
 import 'package:provider/provider.dart';
 
 class Settings extends StatelessWidget {
@@ -17,16 +17,16 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authentication = Provider.of<AuthenticationBase>(context, listen: false);
-    return FutureBuilder<UserModel>(
+    return FutureBuilder<User>(
       future: authentication.currentUser(),
-      builder: (BuildContext context, AsyncSnapshot<UserModel> snapshot) {
+      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
-            UserModel user = snapshot.data;
+            User user = snapshot.data;
             return _buildSettings(context, user);
           }
         }
@@ -34,7 +34,7 @@ class Settings extends StatelessWidget {
     );
   }
 
-  Widget _buildSettings(BuildContext context, UserModel user) {
+  Widget _buildSettings(BuildContext context, User user) {
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(32.0),

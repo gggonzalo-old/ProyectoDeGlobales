@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutterapp/data_models/user.dart';
+import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/network_utils/graphql_client.dart';
 import 'package:graphql/client.dart';
 
