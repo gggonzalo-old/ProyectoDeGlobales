@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "190046040138",
+    "firebase_url": "https://worldhope-f4a14.firebaseio.com",
+    "project_id": "worldhope-f4a14",
+    "storage_bucket": "worldhope-f4a14.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:190046040138:android:f336f12c4c7c3ce9e776b3",
+        "android_client_info": {
+          "package_name": "com.example.flutterapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "190046040138-tdikqdfdkkvob5ehethjmo3j5mvrtmke.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutterapp",
+            "certificate_hash": "41ce862a11a036624eab5b6cc8d604c01ef97f4d"
+          }
+        },
+        {
+          "client_id": "190046040138-00o22munpu1m3rc8o7kf0253kcniscef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC3eLdhwkNxBVu97krWYbyjfGOfkwtrBTg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "190046040138-00o22munpu1m3rc8o7kf0253kcniscef.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
