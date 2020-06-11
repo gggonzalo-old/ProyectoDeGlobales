@@ -29,12 +29,12 @@ mutation {
     _organizer: ""
     name: "Jacó cleanup"
     description: "Acompañenos a Jacó para colaborar"
-    imagesUrls: []
+    imageUrl: []
   ) {
     _id
     name
     description
-    imagesUrls
+    imageUrl
   }
 }
 mutation {

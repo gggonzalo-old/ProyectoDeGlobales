@@ -5,7 +5,9 @@ export const OrganizerEvent = mongoose.model(
   {
     name: String,
     description: String,
-    imagesUrls: [String],
+    date: Date,
+    price: Number,
+    imageUrl: String,
     usersEnrolled: [
       {
         type: mongoose.Schema.Types.ObjectId,

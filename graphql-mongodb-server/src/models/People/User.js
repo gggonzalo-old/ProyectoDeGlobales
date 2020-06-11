@@ -2,7 +2,10 @@ import mongoose from "mongoose";
 import { Post } from "../Post";
 
 export const User = mongoose.model("User", {
+  _id: String,
+  username: String,
   name: String,
+  photoUrl: String,
   posts: [Post.schema],
   friends: [
     {
