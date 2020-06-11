@@ -19,6 +19,8 @@ class _HomePostListState extends State<HomePostList> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: true,
+      physics: ScrollPhysics(),
       itemCount: model.homePosts.length,
       itemBuilder: (context, index) {
         return _buildPost(context, model.homePosts[index]);
@@ -61,7 +63,7 @@ class _HomePostListState extends State<HomePostList> {
                             height: 50.0,
                             width: 50.0,
                             image: CachedNetworkImageProvider(
-                                homePost.post.imageUrl),
+                                homePost.user.photoUrl),
                             fit: BoxFit.cover,
                           ),
                         ),

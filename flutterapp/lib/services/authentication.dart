@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterapp/models/user.dart';
+import 'package:flutterapp/services/data.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class AuthenticationBase {
@@ -18,11 +19,15 @@ class AuthenticationFirebase implements AuthenticationBase {
     if (user == null) {
       return null;
     }
+
+    List<String> splitEmail = user.email.split('@');
+
     return User(
-        id: user.uid,
-        name: user.displayName,
-        username: user.email,
-        photoUrl: user.photoUrl);
+      id: user.uid,
+      name: user.displayName,
+      username: splitEmail[0],
+      photoUrl: user.photoUrl,
+    );
   }
 
   @override
@@ -52,13 +57,15 @@ class AuthenticationFirebase implements AuthenticationBase {
           ),
         );
 
+        User user = _userFromFirebase(authenticationResult.user);
+
         if (authenticationResult.additionalUserInfo.isNewUser) {
-         // await createUser(User(name: "hola", username: "hola"));
-          // create new user graphql
-          //authenticationResult.user.uid
+          GraphQLService graphQLService = GraphQLService();
+
+          await graphQLService.createUser(user);
         }
 
-        return _userFromFirebase(authenticationResult.user);
+        return user;
       } else {
         throw PlatformException(
           code: 'ERROR_MISSING_GOOGLE_AUTH',
@@ -74,8 +81,7 @@ class AuthenticationFirebase implements AuthenticationBase {
   }
 
   @override
-  Future<User> signInWithEmailAndPassword(
-      String email, String password) async {
+  Future<User> signInWithEmailAndPassword(String email, String password) async {
     final authenticationResult = await _firebaseAuth.signInWithEmailAndPassword(
         email: email, password: password);
     return _userFromFirebase(authenticationResult.user);

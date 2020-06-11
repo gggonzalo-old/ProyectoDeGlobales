@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutterapp/models/homeposts.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/view_models/home_model.dart';
-import 'package:flutterapp/pages/post_details.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/widgets/home_posts_list_widget.dart';
 import 'package:provider/provider.dart';
@@ -67,10 +63,16 @@ class _HomePageState extends State<HomePage> {
           .getHomePosts(User())
           .then((posts) => model.updateWith(homePosts: posts)),
       builder: (context, snapshot) {
-        if (model.homePosts.length > 0) {
-          return HomePostList(
-            model: model,
+        if (model.homePosts.length == 0) {
+          return Scaffold(
+            body: Center(
+              child: Text("Not posts found add friends"),
+            ),
           );
+        } else {
+          if (model.homePosts.length > 0) {
+            return _buildHome(context);
+          }
         }
         return Scaffold(
           body: Center(

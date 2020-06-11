@@ -1,9 +1,11 @@
-String createUserMutation(String username, String name) {
+String createUserMutation(String id, String username, String name, String photoUrl) {
   return """
 mutation createUser {
   createUser(
-    	username: $username, 
-    	name: $name
+      _id: "$id", 
+    	username: "$username", 
+    	name: "$name", 
+      photoUrl: "$photoUrl"
   )
   {
     username

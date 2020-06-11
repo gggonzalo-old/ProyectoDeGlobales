@@ -21,12 +21,12 @@ class GraphQLService implements DataService {
           NormalizedInMemoryCache(dataIdFromObject: typenameDataIdFromObject),
       link: _httpLink);
 
-  List<User> _toUser(QueryResult queryResult) {
+  List<User> _toUsers(QueryResult queryResult) {
     if (queryResult.hasException) {
       throw Exception();
     }
 
-    final List users = queryResult.data['getUsers'];
+    final List users = queryResult.data['users'];
 
     return users
         .map((repoJson) => User.fromJson(repoJson))
@@ -58,7 +58,7 @@ class GraphQLService implements DataService {
 
   @override
   Future<List<User>> getUsers() {
-    return _client.query(_queryOptions(readUsers)).then(_toUser);
+    return _client.query(_queryOptions(readUsers)).then(_toUsers);
   }
 
   @override
@@ -70,7 +70,7 @@ class GraphQLService implements DataService {
 
   @override
   Future<void> createUser(User user) {
-    final String queryParameter = createUserMutation(user.name, user.name);
-    _client.query(_queryOptions(queryParameter)).then(_toPost);
+    final String queryParameter = createUserMutation(user.id, user.username, user.name, user.photoUrl);
+    _client.query(_queryOptions(queryParameter));
   }
 }

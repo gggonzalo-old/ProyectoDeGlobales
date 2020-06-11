@@ -5,6 +5,7 @@ query getUsers {
     friends {
       username
       name
+      imageUrl
       posts {
         _id
         date
