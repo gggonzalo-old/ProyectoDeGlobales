@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/user.dart';
+import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 
 enum SearchType { users, posts }
@@ -8,6 +9,7 @@ enum SearchType { users, posts }
 class SearchModel with ChangeNotifier {
   SearchModel(
       {@required this.dataService,
+      @required this.authentication,
       this.users = const [],
       this.posts = const [],
       this.isLoading = false,
@@ -15,19 +17,21 @@ class SearchModel with ChangeNotifier {
       this.searchType = SearchType.posts});
 
   final DataService dataService;
+  final AuthenticationBase authentication;
   List<User> users;
   List<Post> posts;
   bool isLoading;
   String search;
   SearchType searchType;
 
-  Future<void> updateUsers() async {
+  Future<void> updateData() async {
     try {
       updateWith(isLoading: true);
+      User user = await authentication.currentUser();
       if (searchType == SearchType.posts) {
-        updateWith(users: await dataService.getUsers());
+        updateWith(posts: await dataService.getPosts(user, search));
       } else {
-        updateWith(users: await dataService.getUsers());
+        updateWith(users: await dataService.getUsers(user, search));
       }
     } catch (e) {
       rethrow;
@@ -46,7 +50,18 @@ class SearchModel with ChangeNotifier {
 
   void updateSearch(String search) async {
     updateWith(search: search);
-    await updateUsers();
+    await updateData();
+  }
+
+  void addFriend(User friend) async {
+    try {
+      updateWith(isLoading: true);
+      User user = await authentication.currentUser();
+      await dataService.addFriend(user, friend);
+      await updateData();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   void updateWith(

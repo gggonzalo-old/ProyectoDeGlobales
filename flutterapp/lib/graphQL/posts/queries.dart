@@ -1,18 +1,28 @@
-String readHomePosts(String userId) {
+String getHomePostsQuery(String userId) {
   return '''
 query getUsers {
-	user(_user: $userId) {
+	user(_user: "$userId") {
     friends {
       username
       name
-      imageUrl
+      photoUrl
       posts {
         _id
         date
         description
         imageUrl
         usersWhoLiked {
+          _id
           username
+        }
+        comments {
+          content
+          date 
+          user {
+            _id
+            username
+            photoUrl
+          }
         }
       }
     }
@@ -20,6 +30,32 @@ query getUsers {
 }
 ''';
 }
+
+String getPostQuery(String id) {
+  return '''
+query getPost {
+	post(_post: "$id") {
+    _id
+    date 
+    description
+    imageUrl
+    comments
+    userWhoLiked
+  }
+}
+''';
+}
+
+String getPostsByHashtagQuery(String userId, String search) {
+  return '''
+query getPost {
+	post(_id: "$userId") {
+    
+  }
+}
+''';
+}
+
 /*
         comments {
           user {

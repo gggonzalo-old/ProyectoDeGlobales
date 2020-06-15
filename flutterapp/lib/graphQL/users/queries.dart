@@ -1,9 +1,13 @@
-final String readUsers = """ 
+String readUsers(String id, String filter) {
+  return """ 
     query getUsers {
-      users {
+      users(_user: "$id", filter: "$filter") {
         _id,
         username,
-        name
+        name,
+        photoUrl,
+        isFriend
       }
     }
   """;
+}

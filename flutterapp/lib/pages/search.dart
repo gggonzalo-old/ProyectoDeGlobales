@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/view_models/search_model.dart';
 import 'package:flutterapp/widgets/users_list_widget.dart';
@@ -10,8 +11,9 @@ class SearchPage extends StatefulWidget {
   final SearchModel searchModel;
   static Widget create(BuildContext context) {
     final dataService = Provider.of<DataService>(context);
+    final authentication = Provider.of<AuthenticationBase>(context);
     return ChangeNotifierProvider<SearchModel>(
-      create: (_) => SearchModel(dataService: dataService),
+      create: (_) => SearchModel(dataService: dataService, authentication: authentication),
       child: Consumer<SearchModel>(
         builder: (context, model, _) => SearchPage(
           searchModel: model,

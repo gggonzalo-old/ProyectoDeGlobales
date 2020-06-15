@@ -13,3 +13,11 @@ mutation createUser {
 } 
 """;
 }
+
+String addFriendMutation(String id, String friendID) {
+  return """
+mutation addFriend {
+  addFriend(_user: "$id", _friend: "$friendID")
+} 
+""";
+}

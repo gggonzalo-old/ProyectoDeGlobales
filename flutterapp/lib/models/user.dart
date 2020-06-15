@@ -7,12 +7,14 @@ class User with ChangeNotifier {
       this.name,
       this.username,
       this.photoUrl,
+      this.isFriend,
       this.friends,
       this.posts});
   String id;
   String name;
   String username;
   String photoUrl;
+  bool isFriend;
   List<User> friends;
   List<Post> posts;
 
@@ -37,6 +39,7 @@ class User with ChangeNotifier {
       name: json["name"],
       username: json["username"],
       photoUrl: json["photoUrl"],
+      isFriend: json["isFriend"],
       friends: friends,
       posts: posts,
     );

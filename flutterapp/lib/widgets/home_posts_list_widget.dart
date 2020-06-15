@@ -87,8 +87,9 @@ class _HomePostListState extends State<HomePostList> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => PostDetailsPage(
-                            homePost: homePost,
+                          builder: (_) => PostDetailsPage.create(
+                            context,
+                            homePost,
                           ),
                         ),
                       );
@@ -123,12 +124,17 @@ class _HomePostListState extends State<HomePostList> {
                             Row(
                               children: <Widget>[
                                 IconButton(
-                                  icon: Icon(Icons.favorite_border),
+                                  icon: Icon(homePost.post.isLiked
+                                      ? Icons.favorite
+                                      : Icons.favorite_border),
                                   iconSize: 30.0,
-                                  onPressed: () => print('Like post'),
+                                  color:
+                                      homePost.post.isLiked ? Colors.red : null,
+                                  onPressed: () =>
+                                      {model.toggleLike(homePost.post)},
                                 ),
                                 Text(
-                                  '2,515',
+                                  homePost.post.usersWhoLiked.length.toString(),
                                   style: TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.w600,
@@ -146,15 +152,16 @@ class _HomePostListState extends State<HomePostList> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) => PostDetailsPage(
-                                          homePost: homePost,
+                                        builder: (_) => PostDetailsPage.create(
+                                          context,
+                                          homePost,
                                         ),
                                       ),
                                     );
                                   },
                                 ),
                                 Text(
-                                  '350',
+                                  homePost.post.comments.length.toString(),
                                   style: TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.w600,

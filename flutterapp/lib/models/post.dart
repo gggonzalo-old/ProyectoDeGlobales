@@ -8,25 +8,46 @@ class Post with ChangeNotifier {
     this.date,
     this.description,
     this.imageUrl,
-    this.usersWhoLiked,
-    this.comments,
+    this.isLiked = false,
+    this.usersWhoLiked = const [],
+    this.comments = const [],
   });
   String id;
   String date;
   String description;
   String imageUrl;
+  bool isLiked;
   List<User> usersWhoLiked;
   List<Comment> comments;
 
-  factory Post.fromJson(Map<String, dynamic> json) => new Post(
+  factory Post.fromJson(Map<String, dynamic> json) {
+    
+    List usersWhoLiked = json["usersWhoLiked"];
+    List comments = json["comments"];
+
+    if (usersWhoLiked != null) {
+      usersWhoLiked = usersWhoLiked
+          .map((repoJson) => User.fromJson(repoJson))
+          .toList(growable: false);
+    }
+
+    if (comments != null) {
+      comments = comments
+          .map((repoJson) => Comment.fromJson(repoJson))
+          .toList(growable: false);
+    }
+    
+    return Post(
       id: json["_id"],
       date: json["date"],
       description: json["description"],
       imageUrl: json["imageUrl"],
-      usersWhoLiked: json["userWhoLiked"],
-      comments: json["comments"]
+      isLiked: false,
+      usersWhoLiked: usersWhoLiked,
+      comments: comments
       //name: DateTime.parse(json["createdAt"]),
       );
+  }
 
   Map<String, dynamic> toJson() => {
         "id": id,

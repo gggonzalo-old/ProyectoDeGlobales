@@ -1,42 +1,20 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutterapp/models/user.dart';
+import 'package:flutterapp/models/homeposts.dart';
+import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/view_models/home_model.dart';
 import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/widgets/home_posts_list_widget.dart';
 import 'package:provider/provider.dart';
 
-class StatefulWrapper extends StatefulWidget {
-  final Function onInit;
-  final Widget child;
-  const StatefulWrapper({@required this.onInit, @required this.child});
-  @override
-  _StatefulWrapperState createState() => _StatefulWrapperState();
-}
-
-class _StatefulWrapperState extends State<StatefulWrapper> {
-  @override
-  void initState() {
-    if (widget.onInit != null) {
-      widget.onInit();
-    }
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
-}
-
 class HomePage extends StatefulWidget {
   HomePage({Key key, @required this.homeModel}) : super(key: key);
   final HomeModel homeModel;
   static Widget create(BuildContext context) {
     final dataService = Provider.of<DataService>(context, listen: false);
-    final authenticaion =
-        Provider.of<AuthenticationBase>(context, listen: false);
+    final authenticaion = Provider.of<AuthenticationBase>(context, listen: false);
     return ChangeNotifierProvider<HomeModel>(
       create: (_) =>
           HomeModel(authentication: authenticaion, dataService: dataService),
@@ -56,68 +34,77 @@ class _HomePageState extends State<HomePage> {
   HomeModel get model => widget.homeModel;
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model.updateData();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      initialData: model.homePosts,
-      future: Provider.of<DataService>(context)
-          .getHomePosts(User())
-          .then((posts) => model.updateWith(homePosts: posts)),
-      builder: (context, snapshot) {
-        if (model.homePosts.length == 0) {
-          return Scaffold(
-            body: Center(
-              child: Text("Not posts found add friends"),
-            ),
-          );
-        } else {
-          if (model.homePosts.length > 0) {
-            return _buildHome(context);
-          }
-        }
-        return Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: model.updateData,
+      child: Scaffold(
+        body: ListView(children: <Widget>[
+          _buildHome(context),
+          _buildContent(context),
+        ]),
+      ),
     );
   }
 
   Widget _buildHome(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            'WorldHope',
+            style: TextStyle(
+              fontFamily: 'Billabong',
+              fontSize: 32.0,
+            ),
+          ),
+          Row(
             children: <Widget>[
-              Text(
-                'WorldHope',
-                style: TextStyle(
-                  fontFamily: 'Billabong',
-                  fontSize: 32.0,
+              Container(
+                width: 35.0,
+                child: IconButton(
+                  icon: Icon(Icons.add_a_photo),
+                  iconSize: 30.0,
+                  onPressed: () => print('Direct Messages'),
                 ),
-              ),
-              Row(
-                children: <Widget>[
-                  Container(
-                    width: 35.0,
-                    child: IconButton(
-                      icon: Icon(Icons.send),
-                      iconSize: 30.0,
-                      onPressed: () => print('Direct Messages'),
-                    ),
-                  )
-                ],
               )
             ],
-          ),
-        ),
-        HomePostList(
-          model: model,
-        )
-      ],
+          )
+        ],
+      ),
     );
+  }
+
+  Widget _buildContent(BuildContext context) {
+    return model.isLoading
+        ? Container(
+            height: MediaQuery.of(context).size.height -
+                (MediaQuery.of(context).padding.bottom +
+                    MediaQuery.of(context).padding.top),
+            child: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        : model.homePosts.length > 0
+            ? HomePostList(
+                model: model,
+              )
+            : Align(
+                alignment: Alignment.center,
+                child: Center(
+                  child: Text("Not posts found add friends"),
+                ),
+              );
   }
 }
 

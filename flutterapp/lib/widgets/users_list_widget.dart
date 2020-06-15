@@ -26,10 +26,10 @@ class _UserListState extends State<UsersList> {
     } else {
       if (model.users.length == 0) {
         return Scaffold(
-        body: Center(
-          child: Text("Not users found."),
-        ),
-      );
+          body: Center(
+            child: Text("Not users found."),
+          ),
+        );
       } else {
         return ListView.builder(
           itemCount: model.users.length,
@@ -52,8 +52,7 @@ class _UserListState extends State<UsersList> {
             shape: CircleBorder(),
             child: CircleAvatar(
               radius: 30.0,
-              backgroundImage: CachedNetworkImageProvider(
-                  "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media"),
+              backgroundImage: CachedNetworkImageProvider(user.photoUrl),
             ),
           ),
         ),
@@ -74,34 +73,32 @@ class _UserListState extends State<UsersList> {
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                  padding: EdgeInsets.only(top: 2.0),
-                  child: FlatButton(
-                    onPressed: () => {},
-                    child: Container(
-                      width: MediaQuery.of(context).size.width / 4,
-                      height: 27.0,
-                      child: Text(
-                        "Follow",
-                        style: TextStyle(
-                          color: true ? Colors.black : Colors.white,
-                          fontWeight: FontWeight.bold,
+              user.isFriend
+                  ? SizedBox()
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        padding: EdgeInsets.only(top: 2.0),
+                        child: FlatButton(
+                          onPressed: () => {model.addFriend(user)},
+                          child: Container(
+                            width: MediaQuery.of(context).size.width / 4,
+                            height: 27.0,
+                            child: Text(
+                              "Add",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: user.isFriend ? Colors.white : Colors.blue,
+                              borderRadius: BorderRadius.circular(5.0),
+                            ),
+                          ),
                         ),
-                      ),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: true ? Colors.white : Colors.blue,
-                        border: Border.all(
-                          color: true ? Colors.grey : Colors.blue,
-                        ),
-                        borderRadius: BorderRadius.circular(5.0),
                       ),
                     ),
-                  ),
-                ),
-              ),
             ],
           ),
         )
