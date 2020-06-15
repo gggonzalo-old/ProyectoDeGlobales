@@ -12,6 +12,8 @@ const startServer = async () => {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    introspection: true,
+    playground: true,
   });
 
   server.applyMiddleware({ app });
@@ -24,8 +26,8 @@ const startServer = async () => {
     }
   );
 
-  app.listen({ port: 3030 }, () =>
-    console.log(`🚀 Server ready at http://localhost:3030${server.graphqlPath}`)
+  app.listen({ port: process.env.PORT || 3000 }, () =>
+    console.log(`🚀 Server ready!`)
   );
 };
 

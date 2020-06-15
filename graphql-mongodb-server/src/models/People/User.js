@@ -1,8 +1,11 @@
 import mongoose from "mongoose";
-import { Post } from "./Post";
+import { Post } from "../Post";
 
 export const User = mongoose.model("User", {
+  _id: String,
+  username: String,
   name: String,
+  photoUrl: String,
   posts: [Post.schema],
   friends: [
     {
@@ -13,7 +16,7 @@ export const User = mongoose.model("User", {
   enrolledEvents: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Event",
+      ref: "OrganizerEvent",
     },
   ],
 });
