@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/models/homeposts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/user.dart';
@@ -12,11 +11,11 @@ class PostDetailsPage extends StatefulWidget {
   PostDetailsPage({@required this.postDetailModel});
   final PostDetailModel postDetailModel;
 
-  static Widget create(BuildContext context, HomePost homePost) {
+  static Widget create(BuildContext context, Post post) {
     final dataService = Provider.of<DataService>(context);
     final authentication = Provider.of<AuthenticationBase>(context);
     return ChangeNotifierProvider<PostDetailModel>(
-      create: (_) => PostDetailModel(dataService: dataService, authentication: authentication, homePost: homePost),
+      create: (_) => PostDetailModel(dataService: dataService, authentication: authentication, post: post),
       child: Consumer<PostDetailModel>(
         builder: (context, model, _) => PostDetailsPage(
           postDetailModel: model,
@@ -31,8 +30,7 @@ class PostDetailsPage extends StatefulWidget {
 
 class _PostDetailsPageState extends State<PostDetailsPage> {
   PostDetailModel get model => widget.postDetailModel;
-  Post get post => widget.postDetailModel.homePost.post;
-  User get user => widget.postDetailModel.homePost.user;
+  Post get post => widget.postDetailModel.post;
 
   Widget _buildComment(int index) {
     return Padding(
@@ -134,14 +132,14 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                                           height: 50.0,
                                           width: 50.0,
                                           image: CachedNetworkImageProvider(
-                                              user.photoUrl),
+                                              post.owner.photoUrl),
                                           fit: BoxFit.cover,
                                         ),
                                       ),
                                     ),
                                   ),
                                   title: Text(
-                                    user.username,
+                                    post.owner.username,
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -350,7 +348,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                     color: Theme.of(context).buttonColor,
-                    onPressed: () => print('Post comment'),
+                    onPressed: () => {model.createComment("hola")},
                     child: Icon(
                       Icons.send,
                       size: 25.0,

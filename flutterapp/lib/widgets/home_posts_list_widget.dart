@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/models/homeposts.dart';
+import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/view_models/home_model.dart';
@@ -21,14 +21,14 @@ class _HomePostListState extends State<HomePostList> {
     return ListView.builder(
       shrinkWrap: true,
       physics: ScrollPhysics(),
-      itemCount: model.homePosts.length,
+      itemCount: model.posts.length,
       itemBuilder: (context, index) {
-        return _buildPost(context, model.homePosts[index]);
+        return _buildPost(context, model.posts[index]);
       },
     );
   }
 
-  Widget _buildPost(BuildContext context, HomePost homePost) {
+  Widget _buildPost(BuildContext context, Post post) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
       child: Container(
@@ -63,19 +63,19 @@ class _HomePostListState extends State<HomePostList> {
                             height: 50.0,
                             width: 50.0,
                             image: CachedNetworkImageProvider(
-                                homePost.user.photoUrl),
+                                post.owner.photoUrl),
                             fit: BoxFit.cover,
                           ),
                         ),
                       ),
                     ),
                     title: Text(
-                      homePost.user.username,
+                      post.owner.username,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: Text(homePost.post.date),
+                    subtitle: Text(post.date),
                     trailing: IconButton(
                       icon: Icon(Icons.more_horiz),
                       onPressed: () => print('More'),
@@ -89,7 +89,7 @@ class _HomePostListState extends State<HomePostList> {
                         MaterialPageRoute(
                           builder: (_) => PostDetailsPage.create(
                             context,
-                            homePost,
+                            post,
                           ),
                         ),
                       );
@@ -108,7 +108,7 @@ class _HomePostListState extends State<HomePostList> {
                         ],
                         image: DecorationImage(
                           image: CachedNetworkImageProvider(
-                              homePost.post.imageUrl),
+                              post.imageUrl),
                           fit: BoxFit.fitHeight,
                         ),
                       ),
@@ -124,17 +124,17 @@ class _HomePostListState extends State<HomePostList> {
                             Row(
                               children: <Widget>[
                                 IconButton(
-                                  icon: Icon(homePost.post.isLiked
+                                  icon: Icon(post.isLiked
                                       ? Icons.favorite
                                       : Icons.favorite_border),
                                   iconSize: 30.0,
                                   color:
-                                      homePost.post.isLiked ? Colors.red : null,
+                                      post.isLiked ? Colors.red : null,
                                   onPressed: () =>
-                                      {model.toggleLike(homePost.post)},
+                                      {model.toggleLike(post)},
                                 ),
                                 Text(
-                                  homePost.post.usersWhoLiked.length.toString(),
+                                  post.usersWhoLiked.length.toString(),
                                   style: TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.w600,
@@ -154,14 +154,14 @@ class _HomePostListState extends State<HomePostList> {
                                       MaterialPageRoute(
                                         builder: (_) => PostDetailsPage.create(
                                           context,
-                                          homePost,
+                                          post,
                                         ),
                                       ),
                                     );
                                   },
                                 ),
                                 Text(
-                                  homePost.post.comments.length.toString(),
+                                  post.comments.length.toString(),
                                   style: TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.w600,

@@ -27,10 +27,10 @@ class SearchModel with ChangeNotifier {
   Future<void> updateData() async {
     try {
       updateWith(isLoading: true);
-      User user = await authentication.currentUser();
       if (searchType == SearchType.posts) {
-        updateWith(posts: await dataService.getPosts(user, search));
+        updateWith(posts: await dataService.getPostsByHashTag(search));
       } else {
+        User user = await authentication.currentUser();
         updateWith(users: await dataService.getUsers(user, search));
       }
     } catch (e) {

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutterapp/models/homeposts.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/services/authentication.dart';
@@ -10,20 +9,20 @@ class PostDetailModel with ChangeNotifier {
   PostDetailModel({
     @required this.authentication,
     @required this.dataService,
-    this.homePost,
+    this.post,
     this.isLoading = false,
   });
 
   final AuthenticationBase authentication;
   final DataService dataService;
-  HomePost homePost;
+  Post post;
   bool isLoading;
   bool requested;
 
   Future<void> updatePost() async {
     try {
       updateWith(isLoading: true);
-      Post post = await dataService.getPost(homePost.post);
+      Post post = await dataService.getPost(this.post);
       updateWith(post: post);
     } catch (e) {
       rethrow;
@@ -36,7 +35,7 @@ class PostDetailModel with ChangeNotifier {
     try {
       updateWith(isLoading: true);
       User user = await authentication.currentUser();
-      Post updatedPost = await dataService.toggleLikePost(user, homePost.post);
+      Post updatedPost = await dataService.toggleLikePost(user, this.post);
       updateHomePostWith(updatedPost);
     } catch (e) {
       rethrow;
@@ -48,7 +47,8 @@ class PostDetailModel with ChangeNotifier {
   Future<void> createComment(String comment) async {
     try {
       updateWith(isLoading: true);
-      await dataService.createCommentPost(homePost.post, comment, User());
+      User user = await authentication.currentUser();
+      await dataService.createCommentPost(this.post, user, comment);
       await updatePost();
     } catch (e) {
       rethrow;
@@ -58,13 +58,13 @@ class PostDetailModel with ChangeNotifier {
   }
 
   void updateWith({bool isLoading, Post post}) {
-    this.homePost.post = post ?? this.homePost.post;
+    this.post = post ?? this.post;
     this.isLoading = isLoading ?? this.isLoading;
     notifyListeners();
   }
 
   void updateHomePostWith(Post post) {
-    homePost.post = post;
+    this.post = post;
     notifyListeners();
   }
 }

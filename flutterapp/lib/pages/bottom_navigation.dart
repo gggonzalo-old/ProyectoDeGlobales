@@ -29,8 +29,8 @@ class _BottomNavigation extends State<BottomNavigation> {
   Widget build(BuildContext context) {
     _widgetOptions.add(HomePage.create(context));
     _widgetOptions.add(SearchPage.create(context));
-    _widgetOptions.add(EventsPage());
-    _widgetOptions.add(ProfilePage());
+    _widgetOptions.add(EventsPage.create(context));
+    _widgetOptions.add(ProfilePage.create(context));
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

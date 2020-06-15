@@ -1,75 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutterapp/models/event.dart';
 import 'package:flutterapp/pages/event_details.dart';
+import 'package:flutterapp/services/authentication.dart';
+import 'package:flutterapp/services/data.dart';
+import 'package:flutterapp/view_models/event_model.dart';
+import 'package:provider/provider.dart';
 
-final List events = [
-  {
-    "image":
-        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media",
-    "title": "Evento 1"
-  },
-  {
-    "image":
-        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media",
-    "title": "Evento 2"
-  },
-  {
-    "image":
-        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media",
-    "title": "Evento 3"
-  },
-  {
-    "image":
-        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media",
-    "title": "Evento 4"
-  },
-];
 class EventsPage extends StatefulWidget {
+  EventsPage({Key key, @required this.eventModel}) : super(key: key);
+  final EventModel eventModel;
+  static Widget create(BuildContext context) {
+    final dataService = Provider.of<DataService>(context, listen: false);
+    final authenticaion =
+        Provider.of<AuthenticationBase>(context, listen: false);
+    return ChangeNotifierProvider<EventModel>(
+      create: (_) =>
+          EventModel(authentication: authenticaion, dataService: dataService),
+      child: Consumer<EventModel>(
+        builder: (context, model, _) => EventsPage(
+          eventModel: model,
+        ),
+      ),
+    );
+  }
+
   @override
   _EventsPagePageState createState() => _EventsPagePageState();
 }
 
 class _EventsPagePageState extends State<EventsPage> {
+  EventModel get model => widget.eventModel;
 
   TextEditingController controller;
-
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model.updateData();
+    });
     controller = TextEditingController();
   }
-  
+
   @override
   Widget build(BuildContext context) {
-
-    return Scaffold(
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            leading: Icon(Icons.search),
-            title: TextField(
-              controller: controller,
-              cursorColor: Colors.white,
-              style: TextStyle(color: Colors.white),
+    return RefreshIndicator(
+      onRefresh: model.updateData,
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: <Widget>[
+            SliverAppBar(
+              leading: Icon(Icons.search),
+              title: TextField(
+                controller: controller,
+                cursorColor: Colors.white,
+                style: TextStyle(color: Colors.white),
+              ),
             ),
-          ),
-          /*SliverToBoxAdapter(
-            child: _buildCategories(),
-          ),*/
-          SliverList(
-            delegate:
-                SliverChildBuilderDelegate((BuildContext context, int index) {
-              return _buildEvents(context, index);
-            }, childCount: 10),
-          )
-        ],
+            /*SliverToBoxAdapter(
+              child: _buildCategories(),
+            ),*/
+            SliverList(
+              delegate:
+                  SliverChildBuilderDelegate((BuildContext context, int index) {
+                return _buildEvents(context, model.events[index]);
+              }, childCount: model.events.length),
+            )
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildEvents(BuildContext context, int index) {
-    var event = events[index % events.length];
+  Widget _buildEvents(BuildContext context, Event event) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -91,14 +95,14 @@ class _EventsPagePageState extends State<EventsPage> {
                 children: <Widget>[
                   Stack(
                     children: <Widget>[
-                      Image(image: CachedNetworkImageProvider(event['image'])),
+                      Image(image: CachedNetworkImageProvider(event.imageUrl)),
                       Positioned(
                         bottom: 20.0,
                         right: 10.0,
                         child: Container(
                           padding: EdgeInsets.all(10.0),
                           color: Theme.of(context).cardColor,
-                          child: Text("Gratis"),
+                          child: Text(event.price.toString()),
                         ),
                       )
                     ],
@@ -109,7 +113,7 @@ class _EventsPagePageState extends State<EventsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          event['title'],
+                          event.name,
                           style: TextStyle(
                               fontSize: 18.0, fontWeight: FontWeight.bold),
                         ),

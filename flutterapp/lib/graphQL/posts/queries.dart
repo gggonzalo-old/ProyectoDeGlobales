@@ -39,18 +39,52 @@ query getPost {
     date 
     description
     imageUrl
-    comments
-    userWhoLiked
+    comments {
+      content
+      date
+      user {
+        _id
+        username
+        photoUrl
+      }
+    }
+    usersWhoLiked {
+    	_id
+      username
+      photoUrl
+    }
   }
 }
 ''';
 }
 
-String getPostsByHashtagQuery(String userId, String search) {
+String getPostsByHashtagQuery(String tag) {
   return '''
 query getPost {
-	post(_id: "$userId") {
-    
+	posts(tag: "$tag") {
+    _id
+    date
+    description
+    imageUrl
+    usersWhoLiked {
+      _id
+      username
+    }
+    comments {
+      content
+      date 
+      user {
+        _id
+        username
+        photoUrl
+      }
+    }
+    owner {
+      _id
+      username
+      name
+      photoUrl
+    }
   }
 }
 ''';

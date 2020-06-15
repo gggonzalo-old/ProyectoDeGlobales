@@ -1,52 +1,51 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutterapp/models/post.dart';
+import 'package:flutterapp/models/event.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 
-class HomeModel with ChangeNotifier {
-  HomeModel(
+class EventModel with ChangeNotifier {
+  EventModel(
       {@required this.authentication,
       @required this.dataService,
-      this.posts,
+      this.events,
       this.isLoading = true});
 
   final AuthenticationBase authentication;
   final DataService dataService;
-  List<Post> posts;
+  List<Event> events;
   bool isLoading;
 
   Future<void> updateData() async {
     try {
       updateWith(isLoading: true);
-      User user = await authentication.currentUser();
-      List<Post> posts = await dataService.getHomePosts(user);
-      updateWith(isLoading: false, posts: posts);
+      List<Event> events = await dataService.getEvents("");
+      updateWith(isLoading: false, events: events);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<void> toggleLike(Post post) async {
+  Future<void> toggleLike(Event event) async {
     try {
       User user = await authentication.currentUser();
-      Post updatedPost = await dataService.toggleLikePost(user, post);
-      updateHomePostWith(updatedPost);
+      /*Event updatedEvent = await dataService.toggleLikePost(user, post);*/
+      updateHomePostWith(/*updatedEvent*/ Event());
     } catch (e) {
       rethrow;
     }
   }
 
-  void updateWith({List<Post> posts, bool isLoading}) {
-    this.posts = posts ?? this.posts;
+  void updateWith({List<Event> events, bool isLoading}) {
+    this.events = events ?? this.events;
     this.isLoading = isLoading ?? this.isLoading;
     notifyListeners();
   }
 
-  void updateHomePostWith(Post post) {
-    for (Post post in posts) {
-      if (post.id == post.id) {
-        post = post;
+  void updateHomePostWith(Event event) {
+    for (Event event in events) {
+      if (event.id == event.id) {
+        event = event;
       }
     }
     notifyListeners();

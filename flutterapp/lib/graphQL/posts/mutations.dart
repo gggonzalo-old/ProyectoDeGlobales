@@ -27,16 +27,10 @@ String toggleLikePostMutation(String userId, String postId) {
   """;
 }
 
-String createCommentPostMutation(String id, String comment) {
+String createCommentPostMutation(String postID, String userID, String comment) {
   return """ 
-    query getUsers {
-      users(_post: "$id") {
-        _id,
-        username,
-        name,
-        photoUrl,
-        isFriend
-      }
+    mutation createComment {
+      commentUserPost(_post: "$postID", _user: "$userID", content: "$comment")
     }
   """;
 }

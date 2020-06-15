@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/view_models/search_model.dart';
 
 class PostsList extends StatefulWidget {
@@ -20,14 +21,8 @@ class _PostsListState extends State<PostsList> {
     const StaggeredTile.count(1, 1),
     const StaggeredTile.count(1, 1),
     const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(2, 2),
-    const StaggeredTile.count(1, 1),
-    const StaggeredTile.count(1, 1),
     const StaggeredTile.count(2, 1),
-    const StaggeredTile.count(1, 2),
+    const StaggeredTile.count(1, 1),
     const StaggeredTile.count(1, 1),
   ];
 
@@ -44,10 +39,10 @@ class _PostsListState extends State<PostsList> {
     } else {
       if (model.posts.length == 0) {
         return Scaffold(
-        body: Center(
-          child: Text("Not posts found"),
-        ),
-      );
+          body: Center(
+            child: Text("Not posts found"),
+          ),
+        );
       } else {
         return _buildSearchPosts(context);
       }
@@ -59,15 +54,28 @@ class _PostsListState extends State<PostsList> {
       padding: const EdgeInsets.all(8.0),
       crossAxisCount: 3,
       itemCount: model.posts.length,
-      itemBuilder: (context, index) => Container(
-        decoration: BoxDecoration(
-            image: DecorationImage(
-              image: CachedNetworkImageProvider(model.posts[index].imageUrl),
-              fit: BoxFit.cover,
+      itemBuilder: (context, index) => GestureDetector(
+        onTap: () => {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => PostDetailsPage.create(
+                context,
+                model.posts[index],
+              ),
             ),
-            borderRadius: BorderRadius.circular(10.0)),
+          )
+        },
+        child: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                image: CachedNetworkImageProvider(model.posts[index].imageUrl),
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.circular(10.0)),
+        ),
       ),
-      staggeredTileBuilder: (index) => _staggeredTiles[index],
+      staggeredTileBuilder: (index) => _staggeredTiles[index % 10],
       mainAxisSpacing: 8.0,
       crossAxisSpacing: 8.0,
     );

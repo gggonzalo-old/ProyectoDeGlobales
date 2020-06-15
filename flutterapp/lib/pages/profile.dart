@@ -1,33 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/pages/network_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/pages/settings.dart';
 import 'package:flutterapp/services/authentication.dart';
-import 'package:flutterapp/models/user.dart';
+import 'package:flutterapp/services/data.dart';
+import 'package:flutterapp/view_models/profile_model.dart';
 import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final authentication = Provider.of<AuthenticationBase>(context, listen: false);
-    return FutureBuilder<User>(
-      future: authentication.currentUser(),
-      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            User user = snapshot.data;
-            return _buildProfile(context, user);
-          }
-        }
-      },
+class ProfilePage extends StatefulWidget {
+  ProfilePage({Key key, @required this.model}) : super(key: key);
+  final ProfileModel model;
+  static Widget create(BuildContext context) {
+    final dataService = Provider.of<DataService>(context, listen: false);
+    final authenticaion =
+        Provider.of<AuthenticationBase>(context, listen: false);
+    return ChangeNotifierProvider<ProfileModel>(
+      create: (_) =>
+          ProfileModel(authentication: authenticaion, dataService: dataService),
+      child: Consumer<ProfileModel>(
+        builder: (context, model, _) => ProfilePage(
+          model: model,
+        ),
+      ),
     );
   }
 
-  Widget _buildProfile(BuildContext context, User user) {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  ProfileModel get model => widget.model;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      model.updateData();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return model.isLoading
+        ? Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          )
+        : _buildProfile(context);
+  }
+
+  Widget _buildProfile(BuildContext context) {
     return Scaffold(
       body: DefaultTabController(
         length: 2,
@@ -38,7 +65,7 @@ class ProfilePage extends StatelessWidget {
                 delegate: SliverChildListDelegate(
                   List.generate(
                     1,
-                    (index) => _buildHeader(context, user),
+                    (index) => _buildHeader(context),
                   ),
                 ),
               ),
@@ -73,12 +100,23 @@ class ProfilePage extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         crossAxisCount: 2,
                         children: List.generate(
-                            100, (index) => _buildPostListItem())),
-                    ListView(
+                            model.user.posts.length,
+                            (index) =>
+                                _buildPostListItem(model.user.posts[index]))),
+                    GridView.count(
+                        padding: EdgeInsets.zero,
+                        crossAxisCount: 2,
+                        children: List.generate(
+                            model.user.posts.length,
+                            (index) =>
+                                _buildPostListItem(model.user.posts[index]))),
+                    /*ListView(
                       padding: EdgeInsets.zero,
                       children: List.generate(
-                          100, (index) => _buildFavoriteListItem()),
-                    )
+                          model.user.favoritePosts.length,
+                          (index) => _buildFavoriteListItem(
+                              model.user.favoritePosts[index])),
+                    )*/
                   ],
                 ),
               ),
@@ -89,27 +127,40 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _buildFavoriteListItem() {
+  Widget _buildFavoriteListItem(Post post) {
     return Container(
       padding: EdgeInsets.only(bottom: 4.0),
       child: PNetworkImage(
-        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media",
+        post.imageUrl,
         fit: BoxFit.cover,
       ),
     );
   }
 
-  Widget _buildPostListItem() {
-    return Container(
-      height: 150.0,
-      child: PNetworkImage(
-        "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media",
-        fit: BoxFit.cover,
+  Widget _buildPostListItem(Post post) {
+    return GestureDetector(
+      onTap: () => {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PostDetailsPage.create(
+              context,
+              post,
+            ),
+          ),
+        )
+      },
+      child: Container(
+        height: 150.0,
+        child: PNetworkImage(
+          post.imageUrl,
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
 
-  Container _buildHeader(BuildContext context, User user) {
+  Container _buildHeader(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20),
       height: 240.0,
@@ -147,7 +198,7 @@ class ProfilePage extends StatelessWidget {
                     height: 50.0,
                   ),
                   Text(
-                    user.name,
+                    model.user.name,
                     style: Theme.of(context).textTheme.headline6,
                   ),
                   SizedBox(
@@ -165,7 +216,7 @@ class ProfilePage extends StatelessWidget {
                         Expanded(
                           child: ListTile(
                             title: Text(
-                              "302",
+                              model.user.posts.length.toString(),
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
@@ -177,11 +228,11 @@ class ProfilePage extends StatelessWidget {
                         Expanded(
                           child: ListTile(
                             title: Text(
-                              "10.3K",
+                              model.user.friends.length.toString(),
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("Followers".toUpperCase(),
+                            subtitle: Text("Friends".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),
@@ -189,11 +240,11 @@ class ProfilePage extends StatelessWidget {
                         Expanded(
                           child: ListTile(
                             title: Text(
-                              "120",
+                              model.user.enrolledEvents.length.toString(),
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("Following".toUpperCase(),
+                            subtitle: Text("Enrolled events".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),
@@ -213,8 +264,8 @@ class ProfilePage extends StatelessWidget {
                 shape: CircleBorder(),
                 child: CircleAvatar(
                   radius: 40.0,
-                  backgroundImage: CachedNetworkImageProvider(
-                      user.photoUrl),
+                  backgroundImage:
+                      CachedNetworkImageProvider(model.user.photoUrl),
                 ),
               ),
             ],

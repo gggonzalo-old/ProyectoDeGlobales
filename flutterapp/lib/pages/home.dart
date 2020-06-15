@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutterapp/models/homeposts.dart';
 import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/view_models/home_model.dart';
@@ -95,7 +94,7 @@ class _HomePageState extends State<HomePage> {
               child: CircularProgressIndicator(),
             ),
           )
-        : model.homePosts.length > 0
+        : model.posts.length > 0
             ? HomePostList(
                 model: model,
               )

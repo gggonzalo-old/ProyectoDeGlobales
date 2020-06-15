@@ -1,20 +1,23 @@
+import 'package:flutterapp/graphQL/events/queries.dart';
 import 'package:flutterapp/graphQL/posts/mutations.dart';
 import 'package:flutterapp/graphQL/users/mutations.dart';
 import 'package:flutterapp/graphQL/users/queries.dart';
 import 'package:flutterapp/graphQL/posts/queries.dart';
-import 'package:flutterapp/models/homeposts.dart';
+import 'package:flutterapp/models/event.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 abstract class DataService {
+  Future<User> getUser(User user);
   Future<List<User>> getUsers(User user, String search);
-  Future<List<Post>> getPosts(User user, String search);
-  Future<List<HomePost>> getHomePosts(User user);
+  Future<List<Post>> getPostsByHashTag(String search);
+  Future<List<Post>> getHomePosts(User user);
+  Future<List<Event>> getEvents(String search);
   Future<void> createUser(User user);
   Future<Post> toggleLikePost(User user, Post post);
   Future<Post> getPost(Post post);
-  Future<void> createCommentPost(Post post, String comment, User user);
+  Future<void> createCommentPost(Post post, User user, String comment);
   Future<void> addFriend(User user, User friend);
 }
 
@@ -45,6 +48,17 @@ class GraphQLService implements DataService {
     return postFromJson;
   }
 
+  User _toUser(QueryResult queryResult) {
+    if (queryResult.hasException) {
+      throw Exception();
+    }
+    User user = User.fromJson(queryResult.data["user"]);
+    user.posts.forEach((post) {
+      post.owner = user;
+    });
+    return user;
+  }
+
   List<User> _toUsers(QueryResult queryResult) {
     if (queryResult.hasException) {
       throw Exception();
@@ -66,16 +80,16 @@ class GraphQLService implements DataService {
 
     return posts
         .map((repoJson) => Post.fromJson(repoJson))
-        .toList(growable: false);
+        .toList(growable: true);
   }
 
-  List<HomePost> _toHomePosts(QueryResult queryResult, User user) {
+  List<Post> _toHomePosts(QueryResult queryResult, User user) {
     if (queryResult.hasException) {
       throw Exception();
     }
 
     User userFromJson = User.fromJson(queryResult.data['user']);
-    List<HomePost> homePosts = List<HomePost>();
+    List<Post> posts = List<Post>();
 
     userFromJson.friends.forEach((friend) {
       friend.posts.forEach((post) {
@@ -84,14 +98,26 @@ class GraphQLService implements DataService {
             post.isLiked = true;
           }
         }
-
-        homePosts.add(HomePost(post: post, user: user));
+        post.owner = friend;
+        posts.add(post);
       });
     });
 
-    homePosts.sort((a, b) => b.post.date.compareTo(a.post.date));
+    posts.sort((a, b) => b.date.compareTo(a.date));
 
-    return homePosts;
+    return posts;
+  }
+
+  List<Event> _toEvents(QueryResult queryResult) {
+    if (queryResult.hasException) {
+      throw Exception();
+    }
+
+    final List events = queryResult.data['events'];
+
+    return events
+        .map((repoJson) => Event.fromJson(repoJson))
+        .toList(growable: true);
   }
 
   QueryOptions _queryOptions(String query) {
@@ -108,19 +134,18 @@ class GraphQLService implements DataService {
 
   @override
   Future<List<User>> getUsers(User user, String search) {
-    final String queryParameter = readUsers(user.id.toString(), search);
+    final String queryParameter = getUsersQuery(user.id.toString(), search);
     return _client.mutate(_mutationOptions(queryParameter)).then(_toUsers);
   }
 
   @override
-  Future<List<Post>> getPosts(User user, String search) {
-    final String queryParameter =
-        getPostsByHashtagQuery(user.id.toString(), search);
+  Future<List<Post>> getPostsByHashTag(String search) {
+    final String queryParameter = getPostsByHashtagQuery(search);
     return _client.query(_queryOptions(queryParameter)).then(_toPosts);
   }
 
   @override
-  Future<List<HomePost>> getHomePosts(User user) {
+  Future<List<Post>> getHomePosts(User user) {
     final String queryParameter = getHomePostsQuery(user.id);
     return _client
         .mutate(_mutationOptions(queryParameter))
@@ -151,10 +176,11 @@ class GraphQLService implements DataService {
   }
 
   @override
-  Future<Post> createCommentPost(Post post, String comment, User user) {
-    final String queryParameter = createCommentPostMutation(post.id, comment);
+  Future<Post> createCommentPost(Post post, User user, String comment) {
+    final String queryParameter =
+        createCommentPostMutation(post.id, user.id, comment);
     return _client
-        .query(_queryOptions(queryParameter))
+        .mutate(_mutationOptions(queryParameter))
         .then((value) => _toPost(value, "post", user));
   }
 
@@ -162,5 +188,17 @@ class GraphQLService implements DataService {
   Future<void> addFriend(User user, User friend) {
     final String queryParameter = addFriendMutation(user.id, friend.id);
     return _client.mutate(_mutationOptions(queryParameter));
+  }
+
+  @override
+  Future<List<Event>> getEvents(String search) {
+    final String queryParameter = getEventsQuery(search);
+    return _client.query(_queryOptions(queryParameter)).then(_toEvents);
+  }
+
+  @override
+  Future<User> getUser(User user) {
+    final String queryParameter = getUserQuery(user.id);
+    return _client.mutate(_mutationOptions(queryParameter)).then(_toUser);
   }
 }
