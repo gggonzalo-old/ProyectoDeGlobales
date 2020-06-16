@@ -25,12 +25,18 @@ class _BottomNavigation extends State<BottomNavigation> {
     });
   }
 
+  static void _createSubPages(BuildContext context) {
+    if (_widgetOptions.length != 4) {
+      _widgetOptions.add(HomePage.create(context));
+      _widgetOptions.add(SearchPage.create(context));
+      _widgetOptions.add(EventsPage.create(context));
+      _widgetOptions.add(ProfilePage.create(context));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    _widgetOptions.add(HomePage.create(context));
-    _widgetOptions.add(SearchPage.create(context));
-    _widgetOptions.add(EventsPage.create(context));
-    _widgetOptions.add(ProfilePage.create(context));
+    _createSubPages(context);
     return Scaffold(
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),

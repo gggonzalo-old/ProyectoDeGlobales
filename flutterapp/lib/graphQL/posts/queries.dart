@@ -16,13 +16,7 @@ query getUsers {
           username
         }
         comments {
-          content
           date 
-          user {
-            _id
-            username
-            photoUrl
-          }
         }
       }
     }
@@ -39,40 +33,14 @@ query getPost {
     date 
     description
     imageUrl
-    comments {
-      content
-      date
-      user {
-        _id
-        username
-        photoUrl
-      }
-    }
     usersWhoLiked {
     	_id
       username
       photoUrl
     }
-  }
-}
-''';
-}
-
-String getPostsByHashtagQuery(String tag) {
-  return '''
-query getPost {
-	posts(tag: "$tag") {
-    _id
-    date
-    description
-    imageUrl
-    usersWhoLiked {
-      _id
-      username
-    }
     comments {
       content
-      date 
+      date
       user {
         _id
         username
@@ -85,6 +53,17 @@ query getPost {
       name
       photoUrl
     }
+  }
+}
+''';
+}
+
+String getPostsByHashtagQuery(String tag) {
+  return '''
+query getPostsByHashtag {
+	posts(tag: "$tag") {
+    _id
+    imageUrl
   }
 }
 ''';

@@ -1,3 +1,4 @@
+import 'package:flutterapp/graphQL/events/mutations.dart';
 import 'package:flutterapp/graphQL/events/queries.dart';
 import 'package:flutterapp/graphQL/posts/mutations.dart';
 import 'package:flutterapp/graphQL/users/mutations.dart';
@@ -16,9 +17,11 @@ abstract class DataService {
   Future<List<Event>> getEvents(String search);
   Future<void> createUser(User user);
   Future<Post> toggleLikePost(User user, Post post);
-  Future<Post> getPost(Post post);
+  Future<Post> getPost(User user, Post post);
   Future<void> createCommentPost(Post post, User user, String comment);
   Future<void> addFriend(User user, User friend);
+  Future<Event> getEvent(User user, Event event);
+  Future<Event> toggleEventEnrollment(User user, Event event);
 }
 
 class GraphQLService implements DataService {
@@ -57,6 +60,30 @@ class GraphQLService implements DataService {
       post.owner = user;
     });
     return user;
+  }
+
+  Event _toEvent(QueryResult queryResult, User user) {
+    if (queryResult.hasException) {
+      throw Exception();
+    }
+
+    Event event = Event.fromJson(queryResult.data["event"]);
+
+    event.usersEnrolled.forEach((userEnrolled) {
+      if (userEnrolled.id == user.id) {
+        event.isEnrolled = true;
+        return;
+      }
+    });
+
+    event.usersInterested.forEach((userInterested) {
+      if (userInterested.id == user.id) {
+        event.isInterested = true;
+        return;
+      }
+    });
+
+    return event;
   }
 
   List<User> _toUsers(QueryResult queryResult) {
@@ -141,7 +168,7 @@ class GraphQLService implements DataService {
   @override
   Future<List<Post>> getPostsByHashTag(String search) {
     final String queryParameter = getPostsByHashtagQuery(search);
-    return _client.query(_queryOptions(queryParameter)).then(_toPosts);
+    return _client.mutate(_mutationOptions(queryParameter)).then(_toPosts);
   }
 
   @override
@@ -162,26 +189,24 @@ class GraphQLService implements DataService {
   @override
   Future<Post> toggleLikePost(User user, Post post) async {
     final String queryParameter = toggleLikePostMutation(user.id, post.id);
-    return _client
-        .mutate(_mutationOptions(queryParameter))
-        .then((value) => _toPost(value, "toggleUserPostLike", user));
+    await _client.mutate(_mutationOptions(queryParameter));
+    return getPost(user, post);
   }
 
   @override
-  Future<Post> getPost(Post post) {
+  Future<Post> getPost(User user, Post post) {
     final String queryParameter = getPostQuery(post.id);
     return _client
         .mutate(_mutationOptions(queryParameter))
-        .then((value) => _toPost(value, "post", User()));
+        .then((value) => _toPost(value, "post", user));
   }
 
   @override
-  Future<Post> createCommentPost(Post post, User user, String comment) {
+  Future<Post> createCommentPost(Post post, User user, String comment) async {
     final String queryParameter =
         createCommentPostMutation(post.id, user.id, comment);
-    return _client
-        .mutate(_mutationOptions(queryParameter))
-        .then((value) => _toPost(value, "post", user));
+    await _client.mutate(_mutationOptions(queryParameter));
+    return getPost(user, post);
   }
 
   @override
@@ -200,5 +225,21 @@ class GraphQLService implements DataService {
   Future<User> getUser(User user) {
     final String queryParameter = getUserQuery(user.id);
     return _client.mutate(_mutationOptions(queryParameter)).then(_toUser);
+  }
+
+  @override
+  Future<Event> getEvent(User user, Event event) {
+    final String queryParameter = getEventQuery(event.id);
+    return _client
+        .mutate(_mutationOptions(queryParameter))
+        .then((value) => _toEvent(value, user));
+  }
+
+  @override
+  Future<Event> toggleEventEnrollment(User user, Event event) async {
+    final String queryParameter =
+        toggleEventEnrollmentMutation(user.id, event.id);
+    await _client.mutate(_mutationOptions(queryParameter));
+    return getEvent(user, event);
   }
 }

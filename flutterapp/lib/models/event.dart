@@ -11,6 +11,8 @@ class Event {
     this.price = 0,
     this.place,
     this.imageUrl,
+    this.isEnrolled,
+    this.isInterested,
     this.usersEnrolled = const [],
     this.usersInterested = const [],
     this.owner,
@@ -22,6 +24,8 @@ class Event {
   int price;
   String place;
   String imageUrl;
+  bool isEnrolled;
+  bool isInterested;
   List<User> usersEnrolled;
   List<User> usersInterested;
   Organizer owner;
@@ -55,6 +59,8 @@ class Event {
         price: json["price"],
         place: json["place"],
         imageUrl: json["imageUrl"],
+        isEnrolled: false,
+        isInterested: false,
         usersEnrolled: usersEnrolled,
         usersInterested: usersInterested,
         owner: owner

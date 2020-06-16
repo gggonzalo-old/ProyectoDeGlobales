@@ -11,7 +11,8 @@ class LogInPage extends StatefulWidget {
   final LogInModel model;
 
   static Widget create(BuildContext context) {
-    final authentication = Provider.of<AuthenticationBase>(context);
+    final authentication =
+        Provider.of<AuthenticationBase>(context, listen: false);
     return ChangeNotifierProvider<LogInModel>(
       create: (_) => LogInModel(authenticationBase: authentication),
       child: Consumer<LogInModel>(

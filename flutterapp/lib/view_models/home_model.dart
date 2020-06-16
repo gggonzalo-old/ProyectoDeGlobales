@@ -43,12 +43,13 @@ class HomeModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void updateHomePostWith(Post post) {
+  void updateHomePostWith(Post newPost) {
+    List<Post> newPosts = this.posts;
     for (Post post in posts) {
-      if (post.id == post.id) {
-        post = post;
+      if (post.id == newPost.id) {
+        newPosts[posts.indexOf(post)] = newPost;
       }
     }
-    notifyListeners();
+    updateWith(posts: newPosts);
   }
 }

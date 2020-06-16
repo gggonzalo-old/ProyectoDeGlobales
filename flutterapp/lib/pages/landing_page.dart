@@ -9,7 +9,7 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authentication =
-        Provider.of<AuthenticationBase>(context);
+        Provider.of<AuthenticationBase>(context, listen: false);
 
     return StreamBuilder<User>(
       stream: authentication.onAuthenticationStateChanged,

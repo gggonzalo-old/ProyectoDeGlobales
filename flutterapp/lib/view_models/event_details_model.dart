@@ -1,30 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutterapp/models/post.dart';
+import 'package:flutterapp/models/event.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 
-class PostDetailModel with ChangeNotifier {
-  PostDetailModel({
+class EventDetailModel with ChangeNotifier {
+  EventDetailModel({
     @required this.authentication,
     @required this.dataService,
-    this.post,
+    this.event,
     this.isLoading = true,
   });
 
   final AuthenticationBase authentication;
   final DataService dataService;
-  Post post;
+  Event event;
   bool isLoading;
   bool requested;
 
-  Future<void> updatePost() async {
+  Future<void> updateEvent() async {
     try {
       updateWith(isLoading: true);
       User user = await authentication.currentUser();
-      Post post = await dataService.getPost(user, this.post);
-      updateWith(post: post);
+      Event event = await dataService.getEvent(user, this.event);
+      updateWith(event: event);
     } catch (e) {
       rethrow;
     } finally {
@@ -32,12 +32,12 @@ class PostDetailModel with ChangeNotifier {
     }
   }
 
-  Future<void> toggleLike() async {
+  Future<void> enrollOnEvent() async {
     try {
       updateWith(isLoading: true);
       User user = await authentication.currentUser();
-      Post updatedPost = await dataService.toggleLikePost(user, this.post);
-      updateHomePostWith(updatedPost);
+      Event updatedEvent = await dataService.toggleEventEnrollment(user, this.event);
+      updateEventWith(updatedEvent);
     } catch (e) {
       rethrow;
     } finally {
@@ -45,27 +45,14 @@ class PostDetailModel with ChangeNotifier {
     }
   }
 
-  Future<void> createComment(String comment) async {
-    try {
-      updateWith(isLoading: true);
-      User user = await authentication.currentUser();
-      await dataService.createCommentPost(this.post, user, comment);
-      await updatePost();
-    } catch (e) {
-      rethrow;
-    } finally {
-      updateWith(isLoading: false);
-    }
-  }
-
-  void updateWith({bool isLoading, Post post}) {
-    this.post = post ?? this.post;
+  void updateWith({bool isLoading, Event event}) {
+    this.event = event ?? this.event;
     this.isLoading = isLoading ?? this.isLoading;
     notifyListeners();
   }
 
-  void updateHomePostWith(Post post) {
-    this.post = post;
+  void updateEventWith(Event event) {
+    this.event = event;
     notifyListeners();
   }
 }

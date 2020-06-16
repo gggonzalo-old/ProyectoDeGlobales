@@ -13,10 +13,10 @@ class HomePage extends StatefulWidget {
   final HomeModel homeModel;
   static Widget create(BuildContext context) {
     final dataService = Provider.of<DataService>(context, listen: false);
-    final authenticaion = Provider.of<AuthenticationBase>(context, listen: false);
-    return ChangeNotifierProvider<HomeModel>(
-      create: (_) =>
-          HomeModel(authentication: authenticaion, dataService: dataService),
+    final authenticaion =
+        Provider.of<AuthenticationBase>(context, listen: false);
+    return ChangeNotifierProvider<HomeModel>.value(
+      value: HomeModel(authentication: authenticaion, dataService: dataService),
       child: Consumer<HomeModel>(
         builder: (context, model, _) => HomePage(
           homeModel: model,

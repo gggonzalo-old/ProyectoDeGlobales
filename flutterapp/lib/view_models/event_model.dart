@@ -20,9 +20,11 @@ class EventModel with ChangeNotifier {
     try {
       updateWith(isLoading: true);
       List<Event> events = await dataService.getEvents("");
-      updateWith(isLoading: false, events: events);
+      updateWith(events: events);
     } catch (e) {
       rethrow;
+    } finally {
+      updateWith(isLoading: false);
     }
   }
 

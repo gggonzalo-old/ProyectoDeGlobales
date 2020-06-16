@@ -10,8 +10,8 @@ class SearchPage extends StatefulWidget {
   SearchPage({Key key, @required this.searchModel}) : super(key: key);
   final SearchModel searchModel;
   static Widget create(BuildContext context) {
-    final dataService = Provider.of<DataService>(context);
-    final authentication = Provider.of<AuthenticationBase>(context);
+    final dataService = Provider.of<DataService>(context, listen: false);
+    final authentication = Provider.of<AuthenticationBase>(context, listen: false);
     return ChangeNotifierProvider<SearchModel>(
       create: (_) => SearchModel(dataService: dataService, authentication: authentication),
       child: Consumer<SearchModel>(

@@ -16,8 +16,8 @@ class ProfilePage extends StatefulWidget {
     final dataService = Provider.of<DataService>(context, listen: false);
     final authenticaion =
         Provider.of<AuthenticationBase>(context, listen: false);
-    return ChangeNotifierProvider<ProfileModel>(
-      create: (_) =>
+    return ChangeNotifierProvider<ProfileModel>.value(
+      value:
           ProfileModel(authentication: authenticaion, dataService: dataService),
       child: Consumer<ProfileModel>(
         builder: (context, model, _) => ProfilePage(

@@ -11,9 +11,16 @@ class Comment {
     this.content,
   });
 
-  factory Comment.fromJson(Map<String, dynamic> json) => new Comment(
-        user: User.fromJson(json["user"]),
-        date: json["date"],
-        content: json["content"],
-      );
+  factory Comment.fromJson(Map<String, dynamic> json) {
+    User user;
+    if (json["user"] != null) {
+      user = User.fromJson(json["user"]);
+    }
+
+    return Comment(
+      user: user,
+      date: json["date"],
+      content: json["content"],
+    );
+  }
 }

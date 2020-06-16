@@ -14,8 +14,8 @@ class EventsPage extends StatefulWidget {
     final dataService = Provider.of<DataService>(context, listen: false);
     final authenticaion =
         Provider.of<AuthenticationBase>(context, listen: false);
-    return ChangeNotifierProvider<EventModel>(
-      create: (_) =>
+    return ChangeNotifierProvider<EventModel>.value(
+      value:
           EventModel(authentication: authenticaion, dataService: dataService),
       child: Consumer<EventModel>(
         builder: (context, model, _) => EventsPage(
@@ -47,29 +47,33 @@ class _EventsPagePageState extends State<EventsPage> {
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: model.updateData,
-      child: Scaffold(
-        body: CustomScrollView(
-          slivers: <Widget>[
-            SliverAppBar(
-              leading: Icon(Icons.search),
-              title: TextField(
-                controller: controller,
-                cursorColor: Colors.white,
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            /*SliverToBoxAdapter(
+      child: model.isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : Scaffold(
+              body: CustomScrollView(
+                slivers: <Widget>[
+                  SliverAppBar(
+                    leading: Icon(Icons.search),
+                    title: TextField(
+                      controller: controller,
+                      cursorColor: Colors.white,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  /*SliverToBoxAdapter(
               child: _buildCategories(),
             ),*/
-            SliverList(
-              delegate:
-                  SliverChildBuilderDelegate((BuildContext context, int index) {
-                return _buildEvents(context, model.events[index]);
-              }, childCount: model.events.length),
-            )
-          ],
-        ),
-      ),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                        (BuildContext context, int index) {
+                      return _buildEvents(context, model.events[index]);
+                    }, childCount: model.events.length),
+                  )
+                ],
+              ),
+            ),
     );
   }
 
@@ -78,7 +82,9 @@ class _EventsPagePageState extends State<EventsPage> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => EventDetailsPage()),
+          MaterialPageRoute(
+            builder: (context) => EventDetailsPage.create(context, event),
+          ),
         );
       },
       child: Container(
@@ -95,7 +101,14 @@ class _EventsPagePageState extends State<EventsPage> {
                 children: <Widget>[
                   Stack(
                     children: <Widget>[
-                      Image(image: CachedNetworkImageProvider(event.imageUrl)),
+                      Container(
+                        child: Image(
+                          image: CachedNetworkImageProvider(event.imageUrl),
+                          fit: BoxFit.fill,
+                        ),
+                        height: 300,
+                        width: double.infinity,
+                      ),
                       Positioned(
                         bottom: 20.0,
                         right: 10.0,
@@ -120,7 +133,7 @@ class _EventsPagePageState extends State<EventsPage> {
                         SizedBox(
                           height: 5.0,
                         ),
-                        Text("Heredia, Costa Rica"),
+                        Text(event.place),
                         SizedBox(
                           height: 10.0,
                         ),
