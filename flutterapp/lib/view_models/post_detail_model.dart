@@ -10,14 +10,17 @@ class PostDetailModel with ChangeNotifier {
     @required this.authentication,
     @required this.dataService,
     this.post,
+    this.comment,
     this.isLoading = true,
   });
 
   final AuthenticationBase authentication;
   final DataService dataService;
   Post post;
+  String comment;
   bool isLoading;
   bool requested;
+  TextEditingController commentController = TextEditingController();
 
   Future<void> updatePost() async {
     try {
@@ -45,11 +48,12 @@ class PostDetailModel with ChangeNotifier {
     }
   }
 
-  Future<void> createComment(String comment) async {
+  Future<void> createComment() async {
     try {
       updateWith(isLoading: true);
       User user = await authentication.currentUser();
-      await dataService.createCommentPost(this.post, user, comment);
+      await dataService.createCommentPost(this.post, user, this.comment);
+      commentController.clear();
       await updatePost();
     } catch (e) {
       rethrow;
@@ -58,8 +62,13 @@ class PostDetailModel with ChangeNotifier {
     }
   }
 
-  void updateWith({bool isLoading, Post post}) {
+  void updateComment(String comment) {
+    updateWith(comment: comment);
+  }
+
+  void updateWith({bool isLoading, String comment, Post post}) {
     this.post = post ?? this.post;
+    this.comment = comment ?? this.comment;
     this.isLoading = isLoading ?? this.isLoading;
     notifyListeners();
   }

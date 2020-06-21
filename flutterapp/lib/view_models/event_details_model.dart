@@ -45,6 +45,19 @@ class EventDetailModel with ChangeNotifier {
     }
   }
 
+  Future<void> eventInInterested() async {
+    try {
+      updateWith(isLoading: true);
+      User user = await authentication.currentUser();
+      Event updatedEvent = await dataService.toggleEventInInterested(user, this.event);
+      updateEventWith(updatedEvent);
+    } catch (e) {
+      rethrow;
+    } finally {
+      updateWith(isLoading: false);
+    }
+  }
+
   void updateWith({bool isLoading, Event event}) {
     this.event = event ?? this.event;
     this.isLoading = isLoading ?? this.isLoading;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/models/post.dart';
+import 'package:flutterapp/models/prize.dart';
 import 'package:flutterapp/pages/network_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutterapp/pages/post_details.dart';
@@ -73,6 +74,12 @@ class _ProfilePageState extends State<ProfilePage> {
           },
           body: Column(
             children: <Widget>[
+              model.user.enrolledEvents.isEmpty
+                  ? SizedBox()
+                  : _buildSectionHeader(context),
+              model.user.enrolledEvents.isEmpty
+                  ? SizedBox()
+                  : _buildCollectionsRow(),
               Container(
                 color: Theme.of(context).cardColor,
                 child: TabBar(
@@ -87,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     Tab(
                       icon: Icon(
-                        Icons.favorite,
+                        Icons.card_giftcard,
                       ),
                     ),
                   ],
@@ -96,20 +103,30 @@ class _ProfilePageState extends State<ProfilePage> {
               Expanded(
                 child: TabBarView(
                   children: [
-                    GridView.count(
-                        padding: EdgeInsets.zero,
-                        crossAxisCount: 2,
-                        children: List.generate(
-                            model.user.posts.length,
-                            (index) =>
-                                _buildPostListItem(model.user.posts[index]))),
-                    GridView.count(
-                        padding: EdgeInsets.zero,
-                        crossAxisCount: 2,
-                        children: List.generate(
-                            model.user.posts.length,
-                            (index) =>
-                                _buildPostListItem(model.user.posts[index]))),
+                    model.user.posts.isEmpty
+                        ? Center(child: Text("Empty posts list"))
+                        : GridView.count(
+                            padding: EdgeInsets.zero,
+                            crossAxisCount: 2,
+                            children: List.generate(
+                              model.user.posts.length,
+                              (index) => _buildPostListItem(
+                                model.user.posts[index],
+                              ),
+                            ),
+                          ),
+                    model.user.prizesClaimed.isEmpty
+                        ? Center(child: Text("Empty prices list"))
+                        : GridView.count(
+                            padding: EdgeInsets.zero,
+                            crossAxisCount: 1,
+                            children: List.generate(
+                              model.user.prizesClaimed.length,
+                              (index) => _buildFavoriteListItem(
+                                model.user.prizesClaimed[index],
+                              ),
+                            ),
+                          ),
                     /*ListView(
                       padding: EdgeInsets.zero,
                       children: List.generate(
@@ -127,11 +144,72 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildFavoriteListItem(Post post) {
+  Container _buildCollectionsRow() {
+    return Container(
+      height: 200.0,
+      padding: EdgeInsets.symmetric(horizontal: 10.0),
+      child: ListView.builder(
+        physics: BouncingScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        itemCount: model.user.enrolledEvents.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Container(
+            margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+            width: 150.0,
+            height: 200.0,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5.0),
+                    child: PNetworkImage(
+                        model.user.enrolledEvents[index].imageUrl,
+                        fit: BoxFit.cover),
+                  ),
+                ),
+                SizedBox(
+                  height: 5.0,
+                ),
+                Text(
+                  model.user.enrolledEvents[index].name,
+                  style: Theme.of(context).textTheme.subtitle1,
+                )
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Container _buildSectionHeader(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(
+            "Events",
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          FlatButton(
+            onPressed: () {},
+            child: Text(
+              "Search events",
+              style: TextStyle(color: Theme.of(context).textSelectionColor),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFavoriteListItem(Prize prize) {
     return Container(
       padding: EdgeInsets.only(bottom: 4.0),
       child: PNetworkImage(
-        post.imageUrl,
+        prize.qrUrl,
         fit: BoxFit.cover,
       ),
     );

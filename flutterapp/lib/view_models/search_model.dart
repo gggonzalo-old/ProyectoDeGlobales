@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/services/authentication.dart';
@@ -13,9 +14,10 @@ class SearchModel with ChangeNotifier {
       this.users = const [],
       this.posts = const [],
       this.isLoading = false,
-      this.search = '',
+      this.search = "",
       this.searchType = SearchType.posts});
 
+  TextEditingController searchController = TextEditingController();
   final DataService dataService;
   final AuthenticationBase authentication;
   List<User> users;

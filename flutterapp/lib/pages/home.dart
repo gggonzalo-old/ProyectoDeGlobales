@@ -1,7 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/view_models/home_model.dart';
 import 'package:flutterapp/services/data.dart';
@@ -63,7 +61,7 @@ class _HomePageState extends State<HomePage> {
           Text(
             'WorldHope',
             style: TextStyle(
-              fontFamily: 'Billabong',
+              fontFamily: 'Arial',
               fontSize: 32.0,
             ),
           ),

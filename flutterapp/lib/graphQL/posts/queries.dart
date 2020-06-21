@@ -5,12 +5,12 @@ query getUsers {
     friends {
       username
       name
-      photoUrl
+      photoURL
       posts {
         _id
         date
         description
-        imageUrl
+        imageURL
         usersWhoLiked {
           _id
           username
@@ -32,11 +32,13 @@ query getPost {
     _id
     date 
     description
-    imageUrl
+    imageURL
+    eventTag
+    verified
     usersWhoLiked {
     	_id
       username
-      photoUrl
+      photoURL
     }
     comments {
       content
@@ -44,14 +46,14 @@ query getPost {
       user {
         _id
         username
-        photoUrl
+        photoURL
       }
     }
     owner {
       _id
       username
       name
-      photoUrl
+      photoURL
     }
   }
 }
@@ -61,9 +63,9 @@ query getPost {
 String getPostsByHashtagQuery(String tag) {
   return '''
 query getPostsByHashtag {
-	posts(tag: "$tag") {
+	posts(eventTag: "$tag") {
     _id
-    imageUrl
+    imageURL
   }
 }
 ''';

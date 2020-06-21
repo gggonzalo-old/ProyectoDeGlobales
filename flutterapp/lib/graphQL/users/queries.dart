@@ -5,7 +5,7 @@ String getUsersQuery(String id, String filter) {
         _id
         username
         name
-        photoUrl
+        photoURL
         isFriend
       }
     }
@@ -19,12 +19,12 @@ String getUserQuery(String id) {
         _id
         username
         name
-        photoUrl
+        photoURL
         posts {
           _id
           date
           description
-          imageUrl
+          imageURL
           usersWhoLiked {
             _id
             username
@@ -35,16 +35,32 @@ String getUserQuery(String id) {
             user {
               _id
               username
-              photoUrl
+              photoURL
             }
           }
+        }
+        prizesClaimed {
+          _id
+          QRURL
         }
         friends {
           _id
         }
-        enrolledEvents{
+        enrolledEvents {
           _id 
+          name
+          imageURL
         }
+      }
+    }
+  """;
+}
+
+String getUserTagsQuery(String id) {
+  return """ 
+    query getUser {
+      user(_user: "$id") {
+        eventTags
       }
     }
   """;

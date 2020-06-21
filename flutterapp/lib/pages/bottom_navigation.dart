@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/pages/create_post.dart';
 import 'package:flutterapp/pages/home.dart';
 import 'package:flutterapp/pages/profile.dart';
 import 'package:flutterapp/pages/search.dart';
@@ -26,9 +27,10 @@ class _BottomNavigation extends State<BottomNavigation> {
   }
 
   static void _createSubPages(BuildContext context) {
-    if (_widgetOptions.length != 4) {
+    if (_widgetOptions.length != 5) {
       _widgetOptions.add(HomePage.create(context));
       _widgetOptions.add(SearchPage.create(context));
+      _widgetOptions.add(CreatePostPage.create(context));
       _widgetOptions.add(EventsPage.create(context));
       _widgetOptions.add(ProfilePage.create(context));
     }
@@ -56,6 +58,13 @@ class _BottomNavigation extends State<BottomNavigation> {
               color: Theme.of(context).colorScheme.onSurface,
             ),
             title: Text('Search'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.add_photo_alternate,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text('Add post'),
           ),
           BottomNavigationBarItem(
             icon: Icon(

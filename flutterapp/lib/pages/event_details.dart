@@ -7,13 +7,16 @@ import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/view_models/event_details_model.dart';
 import 'package:provider/provider.dart';
 
+enum ButtonType { interested, enroll }
+
 class EventDetailsPage extends StatefulWidget {
   EventDetailsPage({@required this.eventDetailModel});
   final EventDetailModel eventDetailModel;
 
   static Widget create(BuildContext context, Event event) {
     final dataService = Provider.of<DataService>(context, listen: false);
-    final authentication = Provider.of<AuthenticationBase>(context, listen: false);
+    final authentication =
+        Provider.of<AuthenticationBase>(context, listen: false);
     return ChangeNotifierProvider<EventDetailModel>(
       create: (_) => EventDetailModel(
           dataService: dataService,
@@ -38,7 +41,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   void initState() {
     super.initState();
 
-     WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       model.updateEvent();
     });
   }
@@ -50,29 +53,8 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           ? Center(child: CircularProgressIndicator())
           : Stack(
               children: <Widget>[
-                Container(
-                  foregroundDecoration: BoxDecoration(color: Colors.black26),
-                  height: 300,
-                  width: MediaQuery.of(context).size.width,
-                  child: Image(
-                    image: CachedNetworkImageProvider(model.event.imageUrl),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                // Gradiente de Gonzalo
-                Container(
-                  height: 300.0,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: FractionalOffset.topCenter,
-                      end: FractionalOffset.bottomCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.0),
-                        Colors.black.withOpacity(0.6),
-                      ],
-                    ),
-                  ),
-                ),
+                _buildEventPhoto(context),
+                _buildPhotoGradient(),
                 SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,7 +213,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             ),
                             SizedBox(height: 30.0),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: <Widget>[
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,86 +223,101 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                       style:
                                           Theme.of(context).textTheme.headline6,
                                     ),
-                                    Container(
-                                      height: 50,
-                                      child: Stack(
-                                        children: [
-                                          ...model.event.usersInterested
-                                              .asMap()
-                                              .map(
-                                                (i, e) => MapEntry(
-                                                  i,
-                                                  Transform.translate(
-                                                    offset: Offset(i * 25.0, 0),
-                                                    child: SizedBox(
-                                                        height: 50,
-                                                        width: 50,
-                                                        child: _buildAvatar(e,
-                                                            radius: 25)),
-                                                  ),
-                                                ),
-                                              )
-                                              .values
-                                              .toList(),
-                                        ],
-                                      ),
-                                    ),
+                                    model.event.usersInterested.length == 0
+                                        ? Text("No users found.")
+                                        : Container(
+                                            height: 50,
+                                            child: Stack(
+                                              children: [
+                                                ...model.event.usersInterested
+                                                    .asMap()
+                                                    .map(
+                                                      (i, e) => MapEntry(
+                                                        i,
+                                                        Transform.translate(
+                                                          offset: Offset(
+                                                              i * 25.0, 0),
+                                                          child: SizedBox(
+                                                              height: 50,
+                                                              width: 50,
+                                                              child:
+                                                                  _buildAvatar(
+                                                                      e,
+                                                                      radius:
+                                                                          25)),
+                                                        ),
+                                                      ),
+                                                    )
+                                                    .values
+                                                    .toList(),
+                                              ],
+                                            ),
+                                          ),
                                   ],
                                 ),
-                                SizedBox(width: 100),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text(
-                                      "Attend",
+                                      "Enrolled",
                                       style:
                                           Theme.of(context).textTheme.headline6,
                                     ),
-                                    Container(
-                                      height: 50,
-                                      child: Stack(
-                                        children: [
-                                          ...model.event.usersEnrolled
-                                              .asMap()
-                                              .map(
-                                                (i, e) => MapEntry(
-                                                  i,
-                                                  Transform.translate(
-                                                    offset: Offset(i * 25.0, 0),
-                                                    child: SizedBox(
-                                                        height: 50,
-                                                        width: 50,
-                                                        child: _buildAvatar(e,
-                                                            radius: 25)),
-                                                  ),
-                                                ),
-                                              )
-                                              .values
-                                              .toList(),
-                                        ],
-                                      ),
-                                    ),
+                                    model.event.usersEnrolled.length == 0
+                                        ? Row(
+                                            children: <Widget>[
+                                              Text("No users founds."),
+                                            ],
+                                          )
+                                        : Container(
+                                            height: 50,
+                                            child: Stack(
+                                              children: [
+                                                ...model.event.usersEnrolled
+                                                    .asMap()
+                                                    .map(
+                                                      (i, e) => MapEntry(
+                                                        i,
+                                                        Transform.translate(
+                                                          offset: Offset(
+                                                              i * 25.0, 0),
+                                                          child: SizedBox(
+                                                            height: 50,
+                                                            width: 50,
+                                                            child: _buildAvatar(
+                                                                e,
+                                                                radius: 25),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                    .values
+                                                    .toList(),
+                                              ],
+                                            ),
+                                          ),
                                   ],
                                 ),
                               ],
                             ),
                             SizedBox(height: 30.0),
-                            SizedBox(
-                              width: double.infinity,
-                              child: RaisedButton(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30.0)),
-                                color: Theme.of(context).buttonColor,
-                                child: Text(
-                                  "Join event",
-                                  style: TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16.0,
-                                  horizontal: 32.0,
-                                ),
-                                onPressed: () {},
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                _buildButton(
+                                    context,
+                                    ButtonType.interested,
+                                    model.event.isInterested
+                                        ? "Not longer interested"
+                                        : "I'm interested"),
+                                SizedBox(width: 20.0),
+                                _buildButton(
+                                    context,
+                                    ButtonType.enroll,
+                                    model.event.isEnrolled
+                                        ? "Cancel subscription"
+                                        : "Enroll on event"),
+                              ],
                             ),
                             SizedBox(height: 30)
                           ],
@@ -334,6 +331,34 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     );
   }
 
+  Widget _buildEventPhoto(BuildContext context) {
+    return Container(
+      foregroundDecoration: BoxDecoration(color: Colors.black26),
+      height: 300,
+      width: MediaQuery.of(context).size.width,
+      child: Image(
+        image: CachedNetworkImageProvider(model.event.imageUrl),
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+
+  Widget _buildPhotoGradient() {
+    return Container(
+      height: 300.0,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: FractionalOffset.topCenter,
+          end: FractionalOffset.bottomCenter,
+          colors: [
+            Colors.black.withOpacity(0.0),
+            Colors.black.withOpacity(0.6),
+          ],
+        ),
+      ),
+    );
+  }
+
   CircleAvatar _buildAvatar(User user, {double radius = 80}) {
     return CircleAvatar(
       backgroundColor: Colors.white,
@@ -341,6 +366,40 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       child: CircleAvatar(
         radius: radius - 2,
         backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+      ),
+    );
+  }
+
+  Widget _buildButton(
+      BuildContext context, ButtonType buttonType, String message) {
+    Color color;
+    if (buttonType == ButtonType.enroll) {
+      color = model.event.isEnrolled
+          ? Colors.red[500]
+          : Theme.of(context).buttonColor;
+    } else {
+      color = model.event.isInterested
+          ? Colors.red[500]
+          : Theme.of(context).buttonColor;
+    }
+    return Expanded(
+      child: RaisedButton(
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+        color: color,
+        child: Text(
+          message,
+          style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: color == Colors.red[500] ? Colors.white : null),
+        ),
+        padding: const EdgeInsets.symmetric(
+          vertical: 16.0,
+          horizontal: 32.0,
+        ),
+        onPressed: () => buttonType == ButtonType.enroll
+            ? model.enrollOnEvent()
+            : model.eventInInterested(),
       ),
     );
   }

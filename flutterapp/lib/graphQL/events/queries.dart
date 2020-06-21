@@ -7,7 +7,7 @@ query getEvents {
     date 
     price
     place
-    imageUrl
+    imageURL
   }
 }
 ''';
@@ -23,22 +23,20 @@ query getEvent {
     date 
     price
     place
-    imageUrl
+    imageURL
     usersEnrolled {
       _id
       username
-      photoUrl
+      photoURL
     }
     usersInterested {
       _id
       username
-      photoUrl
+      photoURL
     }
     owner {
       _id
       name
-      description
-      imageUrl
     }
   }
 }

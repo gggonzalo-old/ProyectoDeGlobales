@@ -7,6 +7,8 @@ class Post {
       this.date,
       this.description,
       this.imageUrl,
+      this.eventTag, 
+      this.isVerified,
       this.isLiked = false,
       this.usersWhoLiked = const [],
       this.comments = const [],
@@ -15,6 +17,8 @@ class Post {
   String date;
   String description;
   String imageUrl;
+  String eventTag;
+  bool isVerified;
   bool isLiked;
   List<User> usersWhoLiked;
   List<Comment> comments;
@@ -45,7 +49,9 @@ class Post {
         id: json["_id"],
         date: json["date"],
         description: json["description"],
-        imageUrl: json["imageUrl"],
+        imageUrl: json["imageURL"],
+        eventTag: json["eventTag"],
+        isVerified: json["verified"],
         isLiked: false,
         usersWhoLiked: usersWhoLiked,
         comments: comments,

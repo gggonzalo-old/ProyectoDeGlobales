@@ -9,11 +9,15 @@ import 'package:provider/provider.dart';
 class SearchPage extends StatefulWidget {
   SearchPage({Key key, @required this.searchModel}) : super(key: key);
   final SearchModel searchModel;
-  static Widget create(BuildContext context) {
+  static Widget create(BuildContext context, {String eventTag}) {
     final dataService = Provider.of<DataService>(context, listen: false);
-    final authentication = Provider.of<AuthenticationBase>(context, listen: false);
-    return ChangeNotifierProvider<SearchModel>(
-      create: (_) => SearchModel(dataService: dataService, authentication: authentication),
+    final authentication =
+        Provider.of<AuthenticationBase>(context, listen: false);
+    return ChangeNotifierProvider<SearchModel>.value(
+      value: SearchModel(
+          dataService: dataService,
+          authentication: authentication,
+          search: eventTag),
       child: Consumer<SearchModel>(
         builder: (context, model, _) => SearchPage(
           searchModel: model,
@@ -35,14 +39,24 @@ class _SearchPageState extends State<SearchPage> {
 
   */
 
-  TextEditingController _search = TextEditingController();
-
   void changeFollowStatus() {}
   SearchModel get searchModel => widget.searchModel;
 
   void _toggleSearchType(SearchType searchType) {
     searchModel.toggleSearchType(searchType);
-    _search.clear();
+    searchModel.searchController.clear();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (searchModel.search != "") {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        searchModel.searchController.text = searchModel.search;
+        searchModel.updateSearch(searchModel.search);
+      });
+    }
   }
 
   @override
@@ -53,7 +67,7 @@ class _SearchPageState extends State<SearchPage> {
         appBar: AppBar(
           leading: Icon(Icons.search),
           title: TextField(
-            controller: _search,
+            controller: searchModel.searchController,
             cursorColor: Colors.white,
             style: TextStyle(color: Colors.white),
             onChanged: searchModel.updateSearch,

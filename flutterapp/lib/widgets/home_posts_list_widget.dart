@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/models/post.dart';
-import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/view_models/home_model.dart';
-import 'package:flutterapp/view_models/search_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class HomePostList extends StatefulWidget {
@@ -109,7 +107,7 @@ class _HomePostListState extends State<HomePostList> {
                         image: DecorationImage(
                           image: CachedNetworkImageProvider(
                               post.imageUrl),
-                          fit: BoxFit.fitHeight,
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),

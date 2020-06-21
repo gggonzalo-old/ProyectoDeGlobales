@@ -5,7 +5,7 @@ mutation createUser {
       _id: "$id", 
     	username: "$username", 
     	name: "$name", 
-      photoUrl: "$photoUrl"
+      photoURL: "$photoUrl"
   )
   {
     username

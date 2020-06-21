@@ -37,7 +37,7 @@ class Organizer {
       id: json["_id"],
       name: json["name"],
       description: json["description"],
-      imageUrl: json["imageUrl"],
+      imageUrl: json["imageURL"],
       posts: posts,
       events: events,
     );

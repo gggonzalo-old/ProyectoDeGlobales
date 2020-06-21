@@ -1,4 +1,3 @@
-import 'package:flutterapp/models/comment.dart';
 import 'package:flutterapp/models/organizer.dart';
 import 'package:flutterapp/models/user.dart';
 
@@ -58,7 +57,7 @@ class Event {
         date: json["date"],
         price: json["price"],
         place: json["place"],
-        imageUrl: json["imageUrl"],
+        imageUrl: json["imageURL"],
         isEnrolled: false,
         isInterested: false,
         usersEnrolled: usersEnrolled,

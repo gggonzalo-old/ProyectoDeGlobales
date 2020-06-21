@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:flutterapp/models/user.dart';
-import 'package:flutterapp/services/data.dart';
+import 'package:flutterapp/services/graphQL/graphQL_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 abstract class AuthenticationBase {

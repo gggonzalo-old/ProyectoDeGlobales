@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/models/user.dart';
-import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/view_models/search_model.dart';
-import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class UsersList extends StatefulWidget {

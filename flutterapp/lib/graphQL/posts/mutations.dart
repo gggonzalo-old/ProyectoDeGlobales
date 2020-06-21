@@ -6,6 +6,14 @@ String toggleLikePostMutation(String userId, String postId) {
   """;
 }
 
+String createUserPostMutation(String userID, String description, String eventTag, String imageURL) {
+  return """
+  mutation createUserPost {
+    createUserPost(_user: "$userID", description: "$description", eventTag: "$eventTag", imageURL: "$imageURL")
+  }
+  """;
+}
+
 String createCommentPostMutation(String postID, String userID, String comment) {
   return """ 
     mutation createComment {

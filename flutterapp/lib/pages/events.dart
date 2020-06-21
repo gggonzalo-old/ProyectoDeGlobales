@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutterapp/models/event.dart';
-import 'package:flutterapp/pages/event_details.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/view_models/event_model.dart';
+import 'package:flutterapp/widgets/events_list_widget.dart';
+import 'package:flutterapp/widgets/prizes_list_widget.dart';
 import 'package:provider/provider.dart';
 
 class EventsPage extends StatefulWidget {
@@ -34,6 +33,11 @@ class _EventsPagePageState extends State<EventsPage> {
 
   TextEditingController controller;
 
+  void _toggleSearchType(EventSearchType searchType) {
+    model.toggleSearchType(searchType);
+    model.searchController.clear();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -51,101 +55,37 @@ class _EventsPagePageState extends State<EventsPage> {
           ? Center(
               child: CircularProgressIndicator(),
             )
-          : Scaffold(
-              body: CustomScrollView(
-                slivers: <Widget>[
-                  SliverAppBar(
-                    leading: Icon(Icons.search),
-                    title: TextField(
-                      controller: controller,
-                      cursorColor: Colors.white,
-                      style: TextStyle(color: Colors.white),
-                    ),
+          : DefaultTabController(
+              length: 2,
+              child: Scaffold(
+                appBar: AppBar(
+                  leading: Icon(Icons.search),
+                  title: TextField(
+                    controller: model.searchController,
+                    cursorColor: Colors.white,
+                    style: TextStyle(color: Colors.white),
+                    onChanged: model.updateSearch,
                   ),
-                  /*SliverToBoxAdapter(
-              child: _buildCategories(),
-            ),*/
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                        (BuildContext context, int index) {
-                      return _buildEvents(context, model.events[index]);
-                    }, childCount: model.events.length),
-                  )
-                ],
-              ),
-            ),
-    );
-  }
-
-  Widget _buildEvents(BuildContext context, Event event) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => EventDetailsPage.create(context, event),
-          ),
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.all(8.0),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(5.0),
-          child: Container(
-            child: Material(
-              elevation: 5.0,
-              borderRadius: BorderRadius.circular(5.0),
-              color: Theme.of(context).cardColor,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Stack(
-                    children: <Widget>[
-                      Container(
-                        child: Image(
-                          image: CachedNetworkImageProvider(event.imageUrl),
-                          fit: BoxFit.fill,
-                        ),
-                        height: 300,
-                        width: double.infinity,
+                  bottom: TabBar(
+                    tabs: [
+                      Tab(icon: Icon(Icons.event)),
+                      Tab(
+                        icon: Icon(Icons.card_giftcard),
                       ),
-                      Positioned(
-                        bottom: 20.0,
-                        right: 10.0,
-                        child: Container(
-                          padding: EdgeInsets.all(10.0),
-                          color: Theme.of(context).cardColor,
-                          child: Text(event.price.toString()),
-                        ),
-                      )
                     ],
+                    onTap: (index) => {
+                      if (index == 0)
+                        {_toggleSearchType(EventSearchType.event)}
+                      else
+                        {_toggleSearchType(EventSearchType.prize)}
+                    },
                   ),
-                  Container(
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          event.name,
-                          style: TextStyle(
-                              fontSize: 18.0, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5.0,
-                        ),
-                        Text(event.place),
-                        SizedBox(
-                          height: 10.0,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
+                body: TabBarView(
+                  children: [EventList(model: model), PrizesList(model: model)],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

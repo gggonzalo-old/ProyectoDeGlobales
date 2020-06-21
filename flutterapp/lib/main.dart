@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/pages/create_post.dart';
 import 'package:flutterapp/pages/landing_page.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
+import 'package:flutterapp/services/graphQL/graphQL_service.dart';
 import 'package:provider/provider.dart';
 
 void main() {
