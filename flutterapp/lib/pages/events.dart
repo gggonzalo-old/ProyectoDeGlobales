@@ -31,11 +31,9 @@ class EventsPage extends StatefulWidget {
 class _EventsPagePageState extends State<EventsPage> {
   EventModel get model => widget.eventModel;
 
-  TextEditingController controller;
-
   void _toggleSearchType(EventSearchType searchType) {
     model.toggleSearchType(searchType);
-    model.searchController.clear();
+    model.updateData();
   }
 
   @override
@@ -44,48 +42,43 @@ class _EventsPagePageState extends State<EventsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       model.updateData();
     });
-    controller = TextEditingController();
   }
 
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: model.updateData,
-      child: model.isLoading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : DefaultTabController(
-              length: 2,
-              child: Scaffold(
-                appBar: AppBar(
-                  leading: Icon(Icons.search),
-                  title: TextField(
-                    controller: model.searchController,
-                    cursorColor: Colors.white,
-                    style: TextStyle(color: Colors.white),
-                    onChanged: model.updateSearch,
-                  ),
-                  bottom: TabBar(
-                    tabs: [
-                      Tab(icon: Icon(Icons.event)),
-                      Tab(
-                        icon: Icon(Icons.card_giftcard),
-                      ),
-                    ],
-                    onTap: (index) => {
-                      if (index == 0)
-                        {_toggleSearchType(EventSearchType.event)}
-                      else
-                        {_toggleSearchType(EventSearchType.prize)}
-                    },
-                  ),
-                ),
-                body: TabBarView(
-                  children: [EventList(model: model), PrizesList(model: model)],
-                ),
-              ),
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            leading: Icon(Icons.search),
+            title: TextField(
+              controller: model.searchController,
+              cursorColor: Colors.white,
+              style: TextStyle(color: Colors.white),
+              onChanged: model.updateSearch,
             ),
+            bottom: TabBar(
+              tabs: [
+                Tab(icon: Icon(Icons.event)),
+                Tab(
+                  icon: Icon(Icons.card_giftcard),
+                ),
+              ],
+              onTap: (index) => {
+                if (index == 0)
+                  {_toggleSearchType(EventSearchType.event)}
+                else
+                  {_toggleSearchType(EventSearchType.prize)}
+              },
+            ),
+          ),
+          body: TabBarView(
+            children: [EventList(model: model), PrizesList(model: model)],
+          ),
+        ),
+      ),
     );
   }
 }

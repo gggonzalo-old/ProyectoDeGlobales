@@ -37,20 +37,176 @@ class _PostsListState extends State<PostsList> {
         ),
       );
     } else {
-      if (model.posts.length == 0) {
+      if (model.posts.isEmpty) {
         return Scaffold(
           body: Center(
             child: Text("Not posts found"),
           ),
         );
       } else {
-        return _buildSearchPosts(context);
+        return Scaffold(
+          body: ListView(
+            children: <Widget>[
+              _buildEventOrganizerInformation(context),
+              _buildSearchPosts(context)
+            ],
+          ),
+        );
       }
     }
   }
 
+  Widget _buildEventOrganizerInformation(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        vertical: 16.0,
+        horizontal: 16.0
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Flexible(
+            fit: FlexFit.loose,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Flexible(
+                  child: Container(
+                    width: 80.0,
+                    height: 80.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: CachedNetworkImageProvider(
+                            model.event.owner.imageUrl),
+                      ),
+                      border: Border.all(
+                          width: 3,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: Container(
+                    width: 80.0,
+                    height: 80.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: CachedNetworkImageProvider(model.event.imageUrl),
+                      ),
+                      border: Border.all(
+                          width: 3,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            fit: FlexFit.loose,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(height: 20),
+                Flexible(
+                  child: Center(
+                    child: Text(
+                      model.event.owner.name,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Flexible(
+                  child: Center(
+                    child: Text(
+                      model.event.name,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          /*Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Container(
+                    width: 120.0,
+                    height: 120.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: CachedNetworkImageProvider(
+                            model.event.owner.imageUrl),
+                      ),
+                      border: Border.all(
+                          width: 3,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  model.event.owner.name,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Flexible(
+                  child: Container(
+                    width: 120.0,
+                    height: 120.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.fill,
+                        image: CachedNetworkImageProvider(
+                          model.event.imageUrl,
+                        ),
+                      ),
+                      border: Border.all(
+                        width: 3,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Text(model.event.name +
+                    "eraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraereraer")
+              ],
+            ),
+          ),*/
+        ],
+      ),
+    );
+  }
+
   Widget _buildSearchPosts(BuildContext context) {
     return StaggeredGridView.countBuilder(
+      physics: ScrollPhysics(),
+      shrinkWrap: true,
       padding: const EdgeInsets.all(8.0),
       crossAxisCount: 3,
       itemCount: model.posts.length,

@@ -60,8 +60,8 @@ class _HomePostListState extends State<HomePostList> {
                           child: Image(
                             height: 50.0,
                             width: 50.0,
-                            image: CachedNetworkImageProvider(
-                                post.owner.photoUrl),
+                            image:
+                                CachedNetworkImageProvider(post.owner.photoUrl),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -105,8 +105,7 @@ class _HomePostListState extends State<HomePostList> {
                           ),
                         ],
                         image: DecorationImage(
-                          image: CachedNetworkImageProvider(
-                              post.imageUrl),
+                          image: CachedNetworkImageProvider(post.imageUrl),
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -126,10 +125,8 @@ class _HomePostListState extends State<HomePostList> {
                                       ? Icons.favorite
                                       : Icons.favorite_border),
                                   iconSize: 30.0,
-                                  color:
-                                      post.isLiked ? Colors.red : null,
-                                  onPressed: () =>
-                                      {model.toggleLike(post)},
+                                  color: post.isLiked ? Colors.red : null,
+                                  onPressed: () => {model.toggleLike(post)},
                                 ),
                                 Text(
                                   post.usersWhoLiked.length.toString(),
@@ -146,8 +143,8 @@ class _HomePostListState extends State<HomePostList> {
                                 IconButton(
                                   icon: Icon(Icons.chat),
                                   iconSize: 30.0,
-                                  onPressed: () {
-                                    Navigator.push(
+                                  onPressed: () async {
+                                    Post updatedPost = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) => PostDetailsPage.create(
@@ -156,6 +153,7 @@ class _HomePostListState extends State<HomePostList> {
                                         ),
                                       ),
                                     );
+                                    model.updatePost(updatedPost);
                                   },
                                 ),
                                 Text(

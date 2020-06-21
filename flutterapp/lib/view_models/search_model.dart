@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutterapp/models/event.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/services/authentication.dart';
@@ -13,6 +14,7 @@ class SearchModel with ChangeNotifier {
       @required this.authentication,
       this.users = const [],
       this.posts = const [],
+      this.event,
       this.isLoading = false,
       this.search = "",
       this.searchType = SearchType.posts});
@@ -22,6 +24,7 @@ class SearchModel with ChangeNotifier {
   final AuthenticationBase authentication;
   List<User> users;
   List<Post> posts;
+  Event event;
   bool isLoading;
   String search;
   SearchType searchType;
@@ -29,10 +32,16 @@ class SearchModel with ChangeNotifier {
   Future<void> updateData() async {
     try {
       updateWith(isLoading: true);
+      User user = await authentication.currentUser();
       if (searchType == SearchType.posts) {
-        updateWith(posts: await dataService.getPostsByHashTag(search));
+        List<Post> posts = await dataService.getPostsByHashTag(search);
+        Event event = Event();
+        if (posts.isNotEmpty) {
+          event.id = search;
+          event = await dataService.getEvent(user, event);
+        }
+        updateWith(posts: posts, event: event);
       } else {
-        User user = await authentication.currentUser();
         updateWith(users: await dataService.getUsers(user, search));
       }
     } catch (e) {
@@ -69,11 +78,13 @@ class SearchModel with ChangeNotifier {
   void updateWith(
       {List<User> users,
       List<Post> posts,
+      Event event,
       bool isLoading,
       String search,
       SearchType searchType}) {
     this.users = users ?? this.users;
     this.posts = posts ?? this.posts;
+    this.event = event ?? this.event;
     this.isLoading = isLoading ?? this.isLoading;
     this.search = search ?? this.search;
     this.searchType = searchType ?? this.searchType;

@@ -16,14 +16,24 @@ class _PrizesListState extends State<PrizesList> {
   EventModel get model => widget.model;
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: ScrollPhysics(),
-      itemCount: model.prizes.length,
-      itemBuilder: (context, index) {
-        return _buildPrize(context, model.prizes[index]);
-      },
-    );
+    return model.isLoading
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : model.prizes.isEmpty
+            ? Scaffold(
+                body: Center(
+                  child: Text("No prizes found"),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                itemCount: model.prizes.length,
+                itemBuilder: (context, index) {
+                  return _buildPrize(context, model.prizes[index]);
+                },
+              );
   }
 
   Widget _buildPrize(BuildContext context, Prize prize) {

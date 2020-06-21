@@ -190,7 +190,7 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            "Events",
+            "Events(${model.user.enrolledEvents.length})",
             style: Theme.of(context).textTheme.headline6,
           ),
           FlatButton(
@@ -318,11 +318,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         Expanded(
                           child: ListTile(
                             title: Text(
-                              model.user.enrolledEvents.length.toString(),
+                              model.user.points.toString(),
                               textAlign: TextAlign.center,
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            subtitle: Text("Enrolled events".toUpperCase(),
+                            subtitle: Text("Points".toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: TextStyle(fontSize: 12.0)),
                           ),

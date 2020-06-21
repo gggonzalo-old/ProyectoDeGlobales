@@ -50,7 +50,7 @@ class Settings extends StatelessWidget {
                     shape: BoxShape.circle,
                     image: DecorationImage(
                       image: CachedNetworkImageProvider(
-                          "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media"),
+                       user.photoUrl),
                       fit: BoxFit.cover,
                     ),
                     border: Border.all(

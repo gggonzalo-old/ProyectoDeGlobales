@@ -55,9 +55,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     } else {
       pickedFile = await picker.getImage(source: ImageSource.camera);
     }
-
-    File image = File(pickedFile.path);
-    model.selectImage(image);
+    if (pickedFile != null) {
+      File image = File(pickedFile.path);
+      model.selectImage(image);
+    }
   }
 
   @override

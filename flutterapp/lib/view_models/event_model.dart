@@ -27,14 +27,16 @@ class EventModel with ChangeNotifier {
   List<Prize> prizes;
   bool prizeClaimedSuccess;
   bool isLoading;
-  EventSearchType searchType;
+  EventSearchType searchType = EventSearchType.event;
 
   Future<void> updateData() async {
     try {
       updateWith(isLoading: true);
-      List<Event> events = await dataService.getEvents(search);
-      List<Prize> prizes = await dataService.getPrizes(search);
-      updateWith(events: events, prizes: prizes);
+      if (this.searchType == EventSearchType.event) {
+        updateWith(events: await dataService.getEvents(search));
+      } else {
+        updateWith(prizes: await dataService.getPrizes(search));
+      }
     } catch (e) {
       rethrow;
     } finally {
@@ -43,11 +45,7 @@ class EventModel with ChangeNotifier {
   }
 
   void toggleSearchType(EventSearchType eventSearchType) {
-    updateWith(
-        events: const [],
-        prizes: const [],
-        searchType: searchType,
-        isLoading: false);
+    this.searchType = eventSearchType;
   }
 
   Future<void> claimPrize(Prize prize) async {

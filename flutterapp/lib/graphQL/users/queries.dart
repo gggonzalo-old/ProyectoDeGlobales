@@ -20,6 +20,7 @@ String getUserQuery(String id) {
         username
         name
         photoURL
+        points
         posts {
           _id
           date

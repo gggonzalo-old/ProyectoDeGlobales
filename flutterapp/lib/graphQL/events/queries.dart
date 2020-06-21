@@ -37,6 +37,7 @@ query getEvent {
     owner {
       _id
       name
+      imageURL
     }
   }
 }

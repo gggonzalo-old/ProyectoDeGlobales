@@ -37,6 +37,16 @@ class HomeModel with ChangeNotifier {
     }
   }
 
+  Future<void> updatePost(Post post) async {
+    try {
+      User user = await authentication.currentUser();
+      Post updatedPost = await dataService.getPost(user, post);
+      updateHomePostWith(updatedPost);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   void updateWith({List<Post> posts, bool isLoading}) {
     this.posts = posts ?? this.posts;
     this.isLoading = isLoading ?? this.isLoading;

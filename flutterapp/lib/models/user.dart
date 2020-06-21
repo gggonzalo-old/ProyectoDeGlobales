@@ -11,6 +11,7 @@ class User {
       this.isFriend,
       this.friends,
       this.posts,
+      this.points,
       this.prizesClaimed = const [],
       this.favoritePosts = const [],
       this.enrolledEvents = const [],
@@ -20,6 +21,7 @@ class User {
   String username;
   String photoUrl;
   bool isFriend;
+  int points;
   List<User> friends;
   List<Post> posts;
   List<Prize> prizesClaimed;
@@ -46,7 +48,7 @@ class User {
           .toList(growable: false);
     }
 
-     if (prizesClaimed != null) {
+    if (prizesClaimed != null) {
       prizesClaimed = prizesClaimed
           .map((repoJson) => Prize.fromJson(repoJson))
           .toList(growable: false);
@@ -77,6 +79,7 @@ class User {
         username: json["username"],
         photoUrl: json["photoURL"],
         isFriend: json["isFriend"],
+        points: json["points"],
         friends: friends,
         posts: posts,
         prizesClaimed: prizesClaimed,

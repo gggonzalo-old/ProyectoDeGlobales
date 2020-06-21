@@ -121,7 +121,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         IconButton(
           icon: Icon(Icons.arrow_back),
           iconSize: 30.0,
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, model.post),
         ),
         Container(
           width: MediaQuery.of(context).size.width * 0.8,

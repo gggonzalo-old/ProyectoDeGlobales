@@ -17,14 +17,24 @@ class _EventsListState extends State<EventList> {
   EventModel get model => widget.model;
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: ScrollPhysics(),
-      itemCount: model.events.length,
-      itemBuilder: (context, index) {
-        return _buildEvent(context, model.events[index]);
-      },
-    );
+    return model.isLoading
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : model.events.isEmpty
+            ? Scaffold(
+                body: Center(
+                  child: Text("No events found"),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                itemCount: model.events.length,
+                itemBuilder: (context, index) {
+                  return _buildEvent(context, model.events[index]);
+                },
+              );
   }
 
   Widget _buildEvent(BuildContext context, Event event) {
