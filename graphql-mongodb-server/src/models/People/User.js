@@ -1,21 +1,35 @@
 import mongoose from "mongoose";
-import { Post } from "../Post";
+import { Post } from "./Post";
 
 export const User = mongoose.model("User", {
   _id: String,
   username: String,
   name: String,
-  photoUrl: String,
+  photoURL: String,
+  points: Number,
   posts: [Post.schema],
-  friends: [
+  prizesClaimed: [
     {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "Prize",
+    },
+  ],
+  eventTags: [String],
+  friends: [
+    {
+      type: String,
       ref: "User",
     },
   ],
   enrolledEvents: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
+      ref: "OrganizerEvent",
+    },
+  ],
+  attractiveEvents: [
+    {
+      type: String,
       ref: "OrganizerEvent",
     },
   ],

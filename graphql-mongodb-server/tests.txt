@@ -48,7 +48,7 @@ mutation {
   }
 }
 mutation {
-  enrollEvent(_user: "", _event: "")
+  toggleEventEnrollment(_user: "", _event: "")
 }
 mutation {
   likePost(_user: "5ed13f4131b48d4d0db4a5fd",_post:"5ed13f4831b48d4d0db4a5fe")

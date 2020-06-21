@@ -8,7 +8,8 @@
     "clean": "rm -rf build && mkdir build",
     "build-babel": "./node_modules/.bin/babel -d ./build ./src -s",
     "build": "npm run clean && npm run build-babel",
-    "startProd": "npm run build && node ./build/index.js"
+    "startProd": "npm run build && node ./build/index.js",
+    "deploy": "git add . && git commit -m \"Sync\" && git push heroku master"
   },
   "keywords": [],
   "author": "",

@@ -6,7 +6,7 @@ export const PostComment = mongoose.model(
     {
       content: String,
       user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: "User",
       },
       date: Date,

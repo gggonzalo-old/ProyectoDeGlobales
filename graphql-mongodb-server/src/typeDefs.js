@@ -7,8 +7,7 @@ export const typeDefs = gql`
     _id: ID!
     name: String!
     description: String!
-    imageUrl: String!
-    posts: [Post!]!
+    imageURL: String!
     events: [OrganizerEvent!]!
   }
   type OrganizerEvent {
@@ -17,17 +16,24 @@ export const typeDefs = gql`
     description: String!
     date: Date!
     price: Int!
-    imageUrl: String!
+    place: String!
+    imageURL: String!
     usersEnrolled: [User!]!
+    usersInterested: [User!]!
+    owner: Organizer
   }
   type User {
     _id: ID!
     username: String!
     name: String!
-    photoUrl: String!
+    photoURL: String!
     posts: [Post!]!
+    prizesClaimed: [Prize!]!
+    eventTags: [String!]!
     friends: [User!]!
     enrolledEvents: [OrganizerEvent!]!
+    attractiveEvents: [OrganizerEvent!]!
+    isFriend: Boolean
   }
   type PostComment {
     content: String!
@@ -38,47 +44,52 @@ export const typeDefs = gql`
     _id: ID!
     date: Date!
     description: String!
-    imageUrl: String!
+    imageURL: String!
+    eventTag: String!
+    verified: Boolean!
     comments: [PostComment!]!
     usersWhoLiked: [User!]!
+    owner: User
+  }
+  type Prize {
+    _id: ID!
+    name: String!
+    description: String!
+    cost: Int!
+    imageURL: String!
+    QRURL: String!
   }
 
   type Query {
+    event(_event: String!): OrganizerEvent!
+    events(filter: String!): [OrganizerEvent!]!
+    post(_post: String!): Post!
+    posts(eventTag: String!): [Post!]!
     user(_user: String!): User!
-    users: [User!]!
-    friendsPostsSorted(_user: String!): [Post!]!
+    users(_user: String!, filter: String!): [User!]!
     organizer(_organizer: String!): Organizer!
+    prizes(filter: String!): [Prize!]!
   }
   type Mutation {
-    createOrganizer(
-      name: String!
-      description: String!
-      imageUrl: String!
-    ): Organizer!
-    createOrganizerPost(_organizer: String!, description: String!): Post!
-    createEvent(
-      _organizer: String!
-      name: String!
-      description: String!
-      date: Date!
-      price: Int!
-      imageUrl: String!
-    ): OrganizerEvent!
     createUser(
       _id: ID!
       username: String!
       name: String!
-      photoUrl: String!
+      photoURL: String!
     ): User!
     createUserPost(
       _user: String!
       description: String!
-      imageUrl: String!
-    ): Post!
+      eventTag: String!
+      imageURL: String!
+    ): Boolean
     addFriend(_user: String!, _friend: String!): Boolean
-    enrollEvent(_user: String!, _event: String!): Boolean
-    likeOrganizerPost(_user: String!, _post: String!): Boolean
-    likeUserPost(_user: String!, _post: String!): Boolean
+    toggleEventEnrollment(_user: String!, _event: String!): Boolean
+    toggleEventInInterested(_user: String!, _event: String!): Boolean
+    toggleUserPostLike(_user: String!, _post: String!): Boolean
     commentUserPost(_post: String!, _user: String!, content: String!): Boolean
+    claimPrize(_prize: String!, _user: String!): Boolean
+
+    verifyPost(_post: String!): Boolean
   }
 `;
