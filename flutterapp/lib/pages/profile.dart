@@ -404,7 +404,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Container _buildHeader(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20),
-      height: 240.0,
+      height: 260.0,
       child: Stack(
         children: <Widget>[
           GestureDetector(

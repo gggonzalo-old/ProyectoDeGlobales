@@ -174,7 +174,7 @@ class _OrganizerProfilePageState extends State<OrganizerProfilePage> {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: Colors.blueAccent,
+                color: Colors.greenAccent,
                 borderRadius: BorderRadius.circular(10.0),
               ),
               height: double.infinity,
@@ -185,7 +185,7 @@ class _OrganizerProfilePageState extends State<OrganizerProfilePage> {
             ),
             Container(
               decoration: BoxDecoration(
-                color: Colors.indigo,
+                color: Colors.green[900],
                 borderRadius: BorderRadius.circular(10.0),
               ),
               height: double.infinity,
