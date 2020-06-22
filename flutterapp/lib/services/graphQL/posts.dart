@@ -12,6 +12,11 @@ Post toPost(QueryResult queryResult, String tag, User user) {
   postFromJson.usersWhoLiked.forEach((userWhoLiked) {
     if (userWhoLiked.id == user.id) {
       postFromJson.isLiked = true;
+    }
+  });
+  user.bookmarkedPosts.forEach((element) {
+    if (element.id == postFromJson.id) {
+      postFromJson.isBookMarked = true;
       return;
     }
   });
@@ -44,6 +49,11 @@ List<Post> toHomePosts(QueryResult queryResult, User user) {
       for (User userLiked in post.usersWhoLiked) {
         if (user.id == userLiked.id) {
           post.isLiked = true;
+        }
+      }
+      for (Post bookMarkedPost in userFromJson.bookmarkedPosts) {
+        if (bookMarkedPost.id == post.id) {
+          post.isBookMarked = true;
         }
       }
       post.owner = friend;

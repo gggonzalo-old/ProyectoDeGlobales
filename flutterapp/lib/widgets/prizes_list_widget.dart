@@ -65,7 +65,9 @@ class _PrizesListState extends State<PrizesList> {
                       child: Container(
                         padding: EdgeInsets.all(10.0),
                         color: Theme.of(context).cardColor,
-                        child: Text(prize.cost.toString()),
+                        child: Text("${prize.cost.toString()} pts",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w500)),
                       ),
                     )
                   ],
@@ -78,19 +80,27 @@ class _PrizesListState extends State<PrizesList> {
                       Text(
                         prize.name,
                         style: TextStyle(
-                            fontSize: 18.0, fontWeight: FontWeight.bold),
+                            fontSize: 20.0, fontWeight: FontWeight.bold),
                       ),
                       SizedBox(
                         height: 5.0,
                       ),
-                      Text(prize.description),
+                      Text(
+                        prize.description,
+                        style: TextStyle(
+                            fontSize: 18.0, fontWeight: FontWeight.w400),
+                      ),
                       SizedBox(
                         height: 10.0,
                       ),
                       Container(
                         width: double.infinity,
                         child: RaisedButton(
-                          child: Text("Claim"),
+                          child: Text(
+                            "Claim",
+                            style: TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.w600),
+                          ),
                           onPressed: () async => {
                             await model.claimPrize(prize),
                             model.prizeClaimedSuccess

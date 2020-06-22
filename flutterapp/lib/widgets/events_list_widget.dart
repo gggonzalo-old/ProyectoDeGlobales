@@ -75,7 +75,7 @@ class _EventsListState extends State<EventList> {
                         child: Container(
                           padding: EdgeInsets.all(10.0),
                           color: Theme.of(context).cardColor,
-                          child: Text(event.price.toString()),
+                          child: Text("₡${event.price.toString()}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
                         ),
                       )
                     ],
@@ -88,12 +88,12 @@ class _EventsListState extends State<EventList> {
                         Text(
                           event.name,
                           style: TextStyle(
-                              fontSize: 18.0, fontWeight: FontWeight.bold),
+                              fontSize: 20.0, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           height: 5.0,
                         ),
-                        Text(event.place),
+                        Text("Date: ${event.date}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                         SizedBox(
                           height: 10.0,
                         ),

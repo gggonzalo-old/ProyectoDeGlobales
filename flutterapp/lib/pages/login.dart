@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutterapp/view_models/log_in_model.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:provider/provider.dart';
@@ -28,19 +27,7 @@ class LogInPage extends StatefulWidget {
 }
 
 class _LogInPage extends State<LogInPage> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FocusNode _emailFocusNode = FocusNode();
-  final FocusNode _passwordFocusNode = FocusNode();
   LogInModel get model => widget.model;
-
-  Future<void> _signWithEmailAndPassword() async {
-    try {
-      model.signWithEmailAndPassword();
-    } catch (e) {
-      print(e.toString());
-    }
-  }
 
   Future<void> _signInWithGoogle() async {
     try {
@@ -48,19 +35,6 @@ class _LogInPage extends State<LogInPage> {
     } catch (e) {
       print(e.toString());
     }
-  }
-
-  void _toggleFormType() {
-    model.toggleFormType();
-    _emailController.clear();
-    _passwordController.clear();
-  }
-
-  void _emailEditingCompleted() {
-    final newFocus = model.emailValidator.isValid(model.email)
-        ? _passwordFocusNode
-        : _emailFocusNode;
-    FocusScope.of(context).requestFocus(newFocus);
   }
 
   @override
@@ -71,20 +45,21 @@ class _LogInPage extends State<LogInPage> {
           _buildBackground(context),
           ListView(
             children: <Widget>[
-              Container(
-                height:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? MediaQuery.of(context).size.height / 1.5
-                        : 275,
-                child: Center(child: _buildLogInInputs(context)),
-              ),
               SizedBox(
-                height:
-                    MediaQuery.of(context).orientation == Orientation.portrait
-                        ? MediaQuery.of(context).size.height / 8
-                        : 30,
+                height: 100,
+              ),
+              Container(
+                height: 400,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: ExactAssetImage('assets/images/logo.png'),
+                      fit: BoxFit.contain),
+                ),
               ),
               _buildThirdPartySignIn(context),
+          SizedBox(
+                height: 40.0,
+              ),
             ],
           ),
         ],
@@ -94,7 +69,7 @@ class _LogInPage extends State<LogInPage> {
 
   Widget _buildBackground(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height,
+      height: 200,
       child: RotatedBox(
         quarterTurns: 2,
         child: WaveWidget(
@@ -121,177 +96,62 @@ class _LogInPage extends State<LogInPage> {
     );
   }
 
-  Widget _buildLogInInputs(BuildContext context) {
-    // utilizar primary and second text
-    //
-    //
-    ///
-    //
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Text("Login",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: Colors.white70,
-                fontWeight: FontWeight.bold,
-                fontSize: 28.0)),
-        _buildEmailTextInput(),
-        _buildPasswordTextInput(),
-        _buildLoginButton(),
-      ],
-    );
-  }
-
-  Container _buildLoginButton() {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.only(left: 30, right: 30, top: 30),
-      child: RaisedButton(
-        padding: EdgeInsets.symmetric(vertical: 16.0),
-        color: Colors.green[700],
-        onPressed: model.canSubmit ? _signWithEmailAndPassword : null,
-        elevation: 11,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(40.0))),
-        child: Text("Login", style: TextStyle(color: Colors.white70)),
-      ),
-    );
-  }
-
-  Widget _buildEmailTextInput() {
-    return Card(
-      margin: EdgeInsets.only(left: 30, right: 30, top: 30),
-      elevation: 11,
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(40))),
-      child: TextField(
-        controller: _emailController,
-        keyboardType: TextInputType.emailAddress,
-        focusNode: _emailFocusNode,
-        onEditingComplete: () {
-          _emailEditingCompleted();
-        },
-        textInputAction: TextInputAction.next,
-        onChanged: model.updateEmail,
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.person,
-            color: Colors.black26,
-          ),
-          hintText: "Username",
-          hintStyle: TextStyle(color: Colors.black26),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.all(Radius.circular(40.0)),
-          ),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 20.0,
-            vertical: 16.0,
-          ),
-          errorText: model.emailErrorText,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPasswordTextInput() {
-    return Card(
-      margin: EdgeInsets.only(left: 30, right: 30, top: 20),
-      elevation: 11,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(40),
-        ),
-      ),
-      child: TextField(
-        controller: _passwordController,
-        textInputAction: TextInputAction.done,
-        focusNode: _passwordFocusNode,
-        onChanged: model.updatePassword,
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.lock,
-            color: Colors.black26,
-          ),
-          suffixIcon: Icon(
-            Icons.remove_red_eye,
-            color: Colors.black26,
-          ),
-          hintText: "Password",
-          hintStyle: TextStyle(
-            color: Colors.black26,
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderSide: BorderSide.none,
-            borderRadius: BorderRadius.all(
-              Radius.circular(40.0),
-            ),
-          ),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: 20.0,
-            vertical: 16.0,
-          ),
-          errorText: model.passwordErrorText,
-        ),
-        obscureText: true,
-      ),
-    );
-  }
-
   Widget _buildThirdPartySignIn(BuildContext context) {
     return Center(
-      child: Column(
-        children: <Widget>[
-          Text("or, connect with"),
-          SizedBox(
-            height: 20.0,
-          ),
-          Row(
-            children: <Widget>[
-              SizedBox(
-                width: 20.0,
-              ),
-              Expanded(
-                child: RaisedButton(
-                  child: Text("Facebook"),
-                  textColor: Colors.white,
-                  color: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(40)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+              width: 20.0,
+            ),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: RaisedButton(
+                    padding: EdgeInsets.all(8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Image.asset("assets/images/facebook-logo.png"),
+                        Text("Sign in with Facebook", style: TextStyle(fontSize: 18)),
+                      ],
+                    ),
+                    textColor: Colors.white,
+                    color: Colors.blue,
+                    onPressed: model.isLoading ? null : () {},
                   ),
-                  onPressed: model.isLoading ? null : () {},
                 ),
-              ),
-              SizedBox(
-                width: 10.0,
-              ),
-              Expanded(
-                child: RaisedButton(
-                  child: Text("Google"),
-                  textColor: Colors.white,
-                  color: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(40)),
+              ],
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: RaisedButton(
+                    padding: EdgeInsets.all(8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Image.asset("assets/images/google-logo.png"),
+                        Text("Sign in with Google", style: TextStyle(fontSize: 18),),
+                      ],
+                    ),
+                    textColor: Colors.black,
+                    color: Colors.white,
+                    onPressed: model.isLoading
+                        ? null
+                        : () {
+                            _signInWithGoogle();
+                          },
                   ),
-                  onPressed: model.isLoading
-                      ? null
-                      : () {
-                          _signInWithGoogle();
-                        },
                 ),
-              ),
-              SizedBox(
-                width: 20.0,
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

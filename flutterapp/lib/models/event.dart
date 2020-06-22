@@ -1,5 +1,6 @@
 import 'package:flutterapp/models/organizer.dart';
 import 'package:flutterapp/models/user.dart';
+import 'package:intl/intl.dart';
 
 class Event {
   Event({
@@ -54,7 +55,11 @@ class Event {
         id: json["_id"],
         name: json["name"],
         description: json["description"],
-        date: json["date"],
+        date: json["date"] == null
+            ? ""
+            : DateFormat('yyyy-MM-dd kk:mm').format(
+                DateTime.parse(json["date"]),
+              ),
         price: json["price"],
         place: json["place"],
         imageUrl: json["imageURL"],

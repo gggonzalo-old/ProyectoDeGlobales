@@ -245,13 +245,16 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
             children: <Widget>[
               Row(
                 children: <Widget>[
-                  IconButton(
-                    icon: Icon(
-                        post.isLiked ? Icons.favorite : Icons.favorite_border),
-                    iconSize: 30.0,
-                    color: post.isLiked ? Colors.red : null,
-                    onPressed: () => {model.toggleLike()},
-                  ),
+                  model.isLoadingLike
+                      ? CircularProgressIndicator()
+                      : IconButton(
+                          icon: Icon(post.isLiked
+                              ? Icons.favorite
+                              : Icons.favorite_border),
+                          iconSize: 30.0,
+                          color: post.isLiked ? Colors.red : null,
+                          onPressed: () => {model.toggleLike()},
+                        ),
                   Text(
                     post.usersWhoLiked.length.toString(),
                     style: TextStyle(
@@ -282,11 +285,16 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
               ),
             ],
           ),
-          IconButton(
-            icon: Icon(Icons.bookmark_border),
-            iconSize: 30.0,
-            onPressed: () => print('Save post'),
-          ),
+          model.isLoadingBookMarked
+              ? CircularProgressIndicator()
+              : IconButton(
+                  icon: Icon(post.isBookMarked
+                      ? Icons.bookmark
+                      : Icons.bookmark_border),
+                  iconSize: 30.0,
+                  color: post.isBookMarked ? Colors.blue : null,
+                  onPressed: () => {model.toggleBookmark()},
+                ),
         ],
       ),
     );
@@ -449,7 +457,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   color: Theme.of(context).buttonColor,
-                  onPressed: model.createComment,
+                  onPressed: model.isLoading ? null : model.createComment,
                   child: Icon(
                     Icons.send,
                     size: 25.0,

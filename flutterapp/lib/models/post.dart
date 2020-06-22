@@ -1,5 +1,6 @@
 import 'package:flutterapp/models/comment.dart';
 import 'package:flutterapp/models/user.dart';
+import 'package:intl/intl.dart';
 
 class Post {
   Post(
@@ -7,9 +8,10 @@ class Post {
       this.date,
       this.description,
       this.imageUrl,
-      this.eventTag, 
+      this.eventTag,
       this.isVerified,
       this.isLiked = false,
+      this.isBookMarked = false,
       this.usersWhoLiked = const [],
       this.comments = const [],
       this.owner});
@@ -20,6 +22,7 @@ class Post {
   String eventTag;
   bool isVerified;
   bool isLiked;
+  bool isBookMarked;
   List<User> usersWhoLiked;
   List<Comment> comments;
   User owner;
@@ -47,12 +50,17 @@ class Post {
 
     return Post(
         id: json["_id"],
-        date: json["date"],
+        date: json["date"] == null
+            ? ""
+            : DateFormat('yyyy-MM-dd kk:mm').format(
+                DateTime.parse(json["date"]),
+              ),
         description: json["description"],
         imageUrl: json["imageURL"],
         eventTag: json["eventTag"],
         isVerified: json["verified"],
         isLiked: false,
+        isBookMarked: false,
         usersWhoLiked: usersWhoLiked,
         comments: comments,
         owner: owner

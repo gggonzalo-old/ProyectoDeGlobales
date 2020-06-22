@@ -9,12 +9,16 @@ class HomeModel with ChangeNotifier {
       {@required this.authentication,
       @required this.dataService,
       this.posts,
-      this.isLoading = true});
+      this.isLoading = true,
+      this.isLoadingLike = false,
+      this.isLoadingBookMarked = false});
 
   final AuthenticationBase authentication;
   final DataService dataService;
   List<Post> posts;
   bool isLoading;
+  bool isLoadingLike;
+  bool isLoadingBookMarked;
 
   Future<void> updateData() async {
     try {
@@ -29,27 +33,55 @@ class HomeModel with ChangeNotifier {
 
   Future<void> toggleLike(Post post) async {
     try {
+      updateWith(isLoadingLike: true);
       User user = await authentication.currentUser();
       Post updatedPost = await dataService.toggleLikePost(user, post);
       updateHomePostWith(updatedPost);
     } catch (e) {
       rethrow;
+    } finally {
+      updateWith(isLoadingLike: false);
+    }
+  }
+
+  Future<void> toggleBookmark(Post post) async {
+    try {
+      updateWith(isLoadingBookMarked: true);
+      User user = await authentication.currentUser();
+      Post updatedPost = await dataService.toggleUserPostBookmark(user, post);
+      updateHomePostWith(updatedPost);
+    } catch (e) {
+      rethrow;
+    } finally {
+      updateWith(isLoadingBookMarked: false);
     }
   }
 
   Future<void> updatePost(Post post) async {
     try {
-      User user = await authentication.currentUser();
-      Post updatedPost = await dataService.getPost(user, post);
-      updateHomePostWith(updatedPost);
+      if (post != null) {
+        updateWith(isLoadingBookMarked: true, isLoadingLike: true);
+        User user = await authentication.currentUser();
+        Post updatedPost = await dataService.getPost(user, post);
+        updateHomePostWith(updatedPost);
+      }
     } catch (e) {
       rethrow;
+    } finally {
+      updateWith(isLoadingBookMarked: false, isLoadingLike: false);
     }
   }
 
-  void updateWith({List<Post> posts, bool isLoading}) {
+  void updateWith(
+      {List<Post> posts,
+      bool isLoading,
+      bool isLoadingLike,
+      bool isLoadingBookMarked}) {
     this.posts = posts ?? this.posts;
     this.isLoading = isLoading ?? this.isLoading;
+    this.isLoadingLike = isLoadingLike ?? this.isLoadingLike;
+    this.isLoadingBookMarked = isLoadingBookMarked ?? this.isLoadingBookMarked;
+
     notifyListeners();
   }
 

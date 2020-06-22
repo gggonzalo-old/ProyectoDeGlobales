@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/prize.dart';
+import 'package:flutterapp/models/user.dart';
+import 'package:flutterapp/pages/event_details.dart';
+import 'package:flutterapp/pages/events.dart';
 import 'package:flutterapp/pages/network_image.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutterapp/pages/post_details.dart';
@@ -13,13 +16,13 @@ import 'package:provider/provider.dart';
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key key, @required this.model}) : super(key: key);
   final ProfileModel model;
-  static Widget create(BuildContext context) {
+  static Widget create(BuildContext context, {User user}) {
     final dataService = Provider.of<DataService>(context, listen: false);
     final authenticaion =
         Provider.of<AuthenticationBase>(context, listen: false);
     return ChangeNotifierProvider<ProfileModel>.value(
-      value:
-          ProfileModel(authentication: authenticaion, dataService: dataService),
+      value: ProfileModel(
+          authentication: authenticaion, dataService: dataService, user: user),
       child: Consumer<ProfileModel>(
         builder: (context, model, _) => ProfilePage(
           model: model,
@@ -58,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfile(BuildContext context) {
     return Scaffold(
       body: DefaultTabController(
-        length: 2,
+        length: model.isCurrentUser ? 3 : 2,
         child: NestedScrollView(
           headerSliverBuilder: (context, _) {
             return [
@@ -72,7 +75,8 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ];
           },
-          body: Column(
+          body: ListView(
+            shrinkWrap: true,
             children: <Widget>[
               model.user.enrolledEvents.isEmpty
                   ? SizedBox()
@@ -86,55 +90,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   indicatorColor: Theme.of(context).colorScheme.onSurface,
                   labelColor: Theme.of(context).cursorColor,
                   unselectedLabelColor: Theme.of(context).colorScheme.onSurface,
-                  tabs: [
-                    Tab(
-                      icon: Icon(
-                        Icons.photo_size_select_actual,
-                      ),
-                    ),
-                    Tab(
-                      icon: Icon(
-                        Icons.card_giftcard,
-                      ),
-                    ),
-                  ],
+                  tabs: _buildTabList(),
                 ),
               ),
-              Expanded(
+              Container(
+                height: 300,
                 child: TabBarView(
-                  children: [
-                    model.user.posts.isEmpty
-                        ? Center(child: Text("Empty posts list"))
-                        : GridView.count(
-                            padding: EdgeInsets.zero,
-                            crossAxisCount: 2,
-                            children: List.generate(
-                              model.user.posts.length,
-                              (index) => _buildPostListItem(
-                                model.user.posts[index],
-                              ),
-                            ),
-                          ),
-                    model.user.prizesClaimed.isEmpty
-                        ? Center(child: Text("Empty prices list"))
-                        : GridView.count(
-                            padding: EdgeInsets.zero,
-                            crossAxisCount: 1,
-                            children: List.generate(
-                              model.user.prizesClaimed.length,
-                              (index) => _buildFavoriteListItem(
-                                model.user.prizesClaimed[index],
-                              ),
-                            ),
-                          ),
-                    /*ListView(
-                      padding: EdgeInsets.zero,
-                      children: List.generate(
-                          model.user.favoritePosts.length,
-                          (index) => _buildFavoriteListItem(
-                              model.user.favoritePosts[index])),
-                    )*/
-                  ],
+                  children: _buildTabViewItems(),
                 ),
               ),
             ],
@@ -144,38 +106,159 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  List<Widget> _buildTabList() {
+    return model.isCurrentUser
+        ? <Widget>[
+            Tab(
+              icon: Icon(
+                Icons.photo_size_select_actual,
+              ),
+            ),
+            Tab(
+              icon: Icon(
+                Icons.bookmark,
+              ),
+            ),
+            Tab(
+              icon: Icon(
+                Icons.card_giftcard,
+              ),
+            ),
+          ]
+        : <Widget>[
+            Tab(
+              icon: Icon(
+                Icons.photo_size_select_actual,
+              ),
+            ),
+            Tab(
+              icon: Icon(
+                Icons.bookmark,
+              ),
+            ),
+          ];
+  }
+
+  List<Widget> _buildTabViewItems() {
+    return model.isCurrentUser
+        ? <Widget>[
+            model.user.posts.isEmpty
+                ? Center(child: Text("Empty posts list"))
+                : GridView.count(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    crossAxisCount: 2,
+                    children: List.generate(
+                      model.user.posts.length,
+                      (index) => _buildPostListItem(
+                        model.user.posts[index],
+                      ),
+                    ),
+                  ),
+            model.user.bookmarkedPosts.isEmpty
+                ? Center(child: Text("Empty favorite posts list"))
+                : GridView.count(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    crossAxisCount: 2,
+                    children: List.generate(
+                      model.user.bookmarkedPosts.length,
+                      (index) => _buildPostListItem(
+                        model.user.bookmarkedPosts[index],
+                      ),
+                    ),
+                  ),
+            model.user.prizesClaimed.isEmpty
+                ? Center(
+                    child: Text("Empty prices list"),
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: model.user.prizesClaimed.length,
+                    itemBuilder: (context, index) {
+                      return _buildPrizeClaimedListItem(
+                        context,
+                        model.user.prizesClaimed[index],
+                      );
+                    },
+                  ),
+          ]
+        : <Widget>[
+            model.user.posts.isEmpty
+                ? Center(child: Text("Empty posts list"))
+                : GridView.count(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    crossAxisCount: 2,
+                    children: List.generate(
+                      model.user.posts.length,
+                      (index) => _buildPostListItem(
+                        model.user.posts[index],
+                      ),
+                    ),
+                  ),
+            model.user.bookmarkedPosts.isEmpty
+                ? Center(child: Text("Empty favorite posts list"))
+                : GridView.count(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    crossAxisCount: 2,
+                    children: List.generate(
+                      model.user.bookmarkedPosts.length,
+                      (index) => _buildFavoritePostListItem(
+                        model.user.bookmarkedPosts[index],
+                      ),
+                    ),
+                  )
+          ];
+  }
+
   Container _buildCollectionsRow() {
     return Container(
-      height: 200.0,
+      height: 150.0,
       padding: EdgeInsets.symmetric(horizontal: 10.0),
       child: ListView.builder(
         physics: BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         itemCount: model.user.enrolledEvents.length,
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
-            width: 150.0,
-            height: 200.0,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5.0),
-                    child: PNetworkImage(
-                        model.user.enrolledEvents[index].imageUrl,
-                        fit: BoxFit.cover),
+          return GestureDetector(
+            onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EventDetailsPage.create(
+                      context, model.user.enrolledEvents[index]),
+                ),
+              )
+            },
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+              width: 150.0,
+              height: 200.0,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(5.0),
+                      child: PNetworkImage(
+                          model.user.enrolledEvents[index].imageUrl,
+                          fit: BoxFit.cover),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 5.0,
-                ),
-                Text(
-                  model.user.enrolledEvents[index].name,
-                  style: Theme.of(context).textTheme.subtitle1,
-                )
-              ],
+                  SizedBox(
+                    height: 5.0,
+                  ),
+                  Text(
+                    model.user.enrolledEvents[index].name,
+                    style: Theme.of(context)
+                        .textTheme
+                        .subtitle1
+                        .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
+                  )
+                ],
+              ),
             ),
           );
         },
@@ -194,7 +277,14 @@ class _ProfilePageState extends State<ProfilePage> {
             style: Theme.of(context).textTheme.headline6,
           ),
           FlatButton(
-            onPressed: () {},
+            onPressed: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EventsPage.create(context),
+                ),
+              )
+            },
             child: Text(
               "Search events",
               style: TextStyle(color: Theme.of(context).textSelectionColor),
@@ -205,13 +295,86 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildFavoriteListItem(Prize prize) {
+  Widget _buildPrizeClaimedListItem(BuildContext context, Prize prize) {
     return Container(
-      padding: EdgeInsets.only(bottom: 4.0),
-      child: PNetworkImage(
-        prize.qrUrl,
-        fit: BoxFit.cover,
+      margin: EdgeInsets.all(8.0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(5.0),
+        child: Container(
+          child: Material(
+            elevation: 5.0,
+            borderRadius: BorderRadius.circular(5.0),
+            color: Theme.of(context).cardColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Stack(
+                  children: <Widget>[
+                    Container(
+                      child: Image(
+                        image: CachedNetworkImageProvider(prize.imageUrl),
+                        fit: BoxFit.fill,
+                      ),
+                      height: 300,
+                      width: double.infinity,
+                    ),
+                    Positioned(
+                      top: 16.0,
+                      right: 16.0,
+                      child: GestureDetector(
+                        onTap: () => {
+                          _showImageDialog(context, prize.qrUrl),
+                        },
+                        child: Container(
+                          child: Image(
+                            image: CachedNetworkImageProvider(prize.qrUrl),
+                            fit: BoxFit.fill,
+                          ),
+                          height: 100,
+                          width: 100,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 20.0,
+                      right: 10.0,
+                      child: Container(
+                        padding: EdgeInsets.all(10.0),
+                        color: Theme.of(context).cardColor,
+                        child: Text(prize.cost.toString()),
+                      ),
+                    )
+                  ],
+                ),
+                Container(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        prize.name,
+                        style: TextStyle(
+                            fontSize: 18.0, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 5.0,
+                      ),
+                      Text(prize.description),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildFavoritePostListItem(Post post) {
+    return Container(
+      padding: EdgeInsets.only(bottom: 40),
+      child: PNetworkImage(post.imageUrl, fit: BoxFit.fill),
     );
   }
 
@@ -249,7 +412,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => Settings(),
+                  builder: (context) => SettingsPage(),
                 ),
               );
             },
@@ -279,12 +442,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     model.user.name,
                     style: Theme.of(context).textTheme.headline6,
                   ),
-                  SizedBox(
-                    height: 5.0,
-                  ),
-                  Text("UI/UX designer | Angular xddd"),
-                  SizedBox(
-                    height: 16.0,
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                    child: Text(
+                      "Estudiante de la Universidad Nacional de Costa Rica",
+                      textAlign: TextAlign.center,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+                    ),
                   ),
                   Container(
                     height: 40.0,
@@ -348,7 +513,64 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ],
           ),
+          model.isCurrentUser
+              ? SizedBox()
+              : Padding(
+                  padding: const EdgeInsets.only(right: 50.0, top: 40),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      RaisedButton(
+                        onPressed: () => {
+                          model.user.isFriend
+                              ? model.removeFriend()
+                              : model.addFriend()
+                        },
+                        color: model.user.isFriend ? Colors.red : Colors.blue,
+                        child: Text(
+                          model.user.isFriend ? "Remove" : "Add",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
         ],
+      ),
+    );
+  }
+
+  _showImageDialog(BuildContext context, String image) {
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                child: PNetworkImage(
+                  image,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                IconButton(
+                  color: Colors.white,
+                  icon: Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

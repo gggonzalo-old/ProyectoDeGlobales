@@ -21,3 +21,11 @@ mutation addFriend {
 } 
 """;
 }
+
+String removeFriendMutation(String id, String friendID) {
+  return """
+mutation removeFriend {
+  removeFriend(_user: "$id", _friend: "$friendID")
+} 
+""";
+}

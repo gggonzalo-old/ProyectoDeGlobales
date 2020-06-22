@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/models/user.dart';
+import 'package:flutterapp/pages/profile.dart';
 import 'package:flutterapp/view_models/search_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -45,12 +46,22 @@ class _UserListState extends State<UsersList> {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Material(
-            elevation: 5.0,
-            shape: CircleBorder(),
-            child: CircleAvatar(
-              radius: 30.0,
-              backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+          child: GestureDetector(
+            onTap: () => {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ProfilePage.create(context, user: user),
+                ),
+              )
+            },
+            child: Material(
+              elevation: 5.0,
+              shape: CircleBorder(),
+              child: CircleAvatar(
+                radius: 30.0,
+                backgroundImage: CachedNetworkImageProvider(user.photoUrl),
+              ),
             ),
           ),
         ),

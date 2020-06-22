@@ -1,7 +1,15 @@
 String toggleLikePostMutation(String userId, String postId) {
   return """ 
   mutation toggleLike {
-  toggleUserPostLike(_user: "$userId", _post: "$postId") 
+    toggleUserPostLike(_user: "$userId", _post: "$postId") 
+}
+  """;
+}
+
+String toggleUserPostBookmarkMutation(String userId, String postId) {
+  return """ 
+  mutation toggleUserPostBookmark {
+    toggleUserPostBookmark(_user: "$userId", _post: "$postId") 
 }
   """;
 }

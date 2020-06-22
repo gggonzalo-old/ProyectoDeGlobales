@@ -6,20 +6,23 @@ import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 
 class PostDetailModel with ChangeNotifier {
-  PostDetailModel({
-    @required this.authentication,
-    @required this.dataService,
-    this.post,
-    this.comment,
-    this.isLoading = true,
-  });
+  PostDetailModel(
+      {@required this.authentication,
+      @required this.dataService,
+      this.post,
+      this.comment,
+      this.isLoading = true,
+      this.isLoadingLike = false,
+      this.isLoadingBookMarked = false});
 
   final AuthenticationBase authentication;
   final DataService dataService;
   Post post;
   String comment;
   bool isLoading;
-  bool requested;
+  bool isLoadingLike;
+  bool isLoadingBookMarked;
+
   TextEditingController commentController = TextEditingController();
 
   Future<void> updatePost() async {
@@ -37,14 +40,28 @@ class PostDetailModel with ChangeNotifier {
 
   Future<void> toggleLike() async {
     try {
-      updateWith(isLoading: true);
+      updateWith(isLoadingLike: true);
       User user = await authentication.currentUser();
       Post updatedPost = await dataService.toggleLikePost(user, this.post);
       updateHomePostWith(updatedPost);
     } catch (e) {
       rethrow;
     } finally {
-      updateWith(isLoading: false);
+      updateWith(isLoadingLike: false);
+    }
+  }
+
+  Future<void> toggleBookmark() async {
+    try {
+      updateWith(isLoadingBookMarked: true);
+      User user = await authentication.currentUser();
+      Post updatedPost =
+          await dataService.toggleUserPostBookmark(user, this.post);
+      updateHomePostWith(updatedPost);
+    } catch (e) {
+      rethrow;
+    } finally {
+      updateWith(isLoadingBookMarked: false);
     }
   }
 
@@ -66,10 +83,17 @@ class PostDetailModel with ChangeNotifier {
     updateWith(comment: comment);
   }
 
-  void updateWith({bool isLoading, String comment, Post post}) {
+  void updateWith(
+      {bool isLoading,
+      String comment,
+      Post post,
+      bool isLoadingLike,
+      bool isLoadingBookMarked}) {
     this.post = post ?? this.post;
     this.comment = comment ?? this.comment;
     this.isLoading = isLoading ?? this.isLoading;
+    this.isLoadingLike = isLoadingLike ?? this.isLoadingLike;
+    this.isLoadingBookMarked = isLoadingBookMarked ?? this.isLoadingBookMarked;
     notifyListeners();
   }
 

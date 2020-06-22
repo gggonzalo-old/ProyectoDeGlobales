@@ -53,10 +53,10 @@ class _EventsPagePageState extends State<EventsPage> {
         child: Scaffold(
           appBar: AppBar(
             leading: Icon(Icons.search),
+            backgroundColor: Theme.of(context).hoverColor,
             title: TextField(
-              controller: model.searchController,
-              cursorColor: Colors.white,
               style: TextStyle(color: Colors.white),
+              controller: model.searchController,
               onChanged: model.updateSearch,
             ),
             bottom: TabBar(

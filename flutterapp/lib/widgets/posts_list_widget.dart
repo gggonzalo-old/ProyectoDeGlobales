@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:flutterapp/pages/event_details.dart';
+import 'package:flutterapp/pages/organizer_profile.dart';
 import 'package:flutterapp/pages/post_details.dart';
 import 'package:flutterapp/view_models/search_model.dart';
 
@@ -48,6 +50,9 @@ class _PostsListState extends State<PostsList> {
           body: ListView(
             children: <Widget>[
               _buildEventOrganizerInformation(context),
+              Divider(
+                thickness: 1,
+              ),
               _buildSearchPosts(context)
             ],
           ),
@@ -58,10 +63,7 @@ class _PostsListState extends State<PostsList> {
 
   Widget _buildEventOrganizerInformation(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: 16.0,
-        horizontal: 16.0
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -71,35 +73,58 @@ class _PostsListState extends State<PostsList> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: <Widget>[
                 Flexible(
-                  child: Container(
-                    width: 80.0,
-                    height: 80.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: CachedNetworkImageProvider(
-                            model.event.owner.imageUrl),
+                  child: GestureDetector(
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrganizerProfilePage.create(
+                              context, model.event.owner),
+                        ),
+                      )
+                    },
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          fit: BoxFit.fill,
+                          image: CachedNetworkImageProvider(
+                              model.event.owner.imageUrl),
+                        ),
+                        border: Border.all(
+                            width: 3,
+                            color: Theme.of(context).colorScheme.primary),
                       ),
-                      border: Border.all(
-                          width: 3,
-                          color: Theme.of(context).colorScheme.primary),
                     ),
                   ),
                 ),
                 Flexible(
-                  child: Container(
-                    width: 80.0,
-                    height: 80.0,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        fit: BoxFit.fill,
-                        image: CachedNetworkImageProvider(model.event.imageUrl),
+                  child: GestureDetector(
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              EventDetailsPage.create(context, model.event),
+                        ),
+                      )
+                    },
+                    child: Container(
+                      width: 80.0,
+                      height: 80.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          fit: BoxFit.fill,
+                          image:
+                              CachedNetworkImageProvider(model.event.imageUrl),
+                        ),
+                        border: Border.all(
+                            width: 3,
+                            color: Theme.of(context).colorScheme.primary),
                       ),
-                      border: Border.all(
-                          width: 3,
-                          color: Theme.of(context).colorScheme.primary),
                     ),
                   ),
                 ),
@@ -118,8 +143,8 @@ class _PostsListState extends State<PostsList> {
                     child: Text(
                       model.event.owner.name,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -129,8 +154,8 @@ class _PostsListState extends State<PostsList> {
                     child: Text(
                       model.event.name,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
                 )

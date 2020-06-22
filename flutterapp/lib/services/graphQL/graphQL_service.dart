@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutterapp/graphQL/events/mutations.dart';
 import 'package:flutterapp/graphQL/events/queries.dart';
+import 'package:flutterapp/graphQL/organizer/queries.dart';
 import 'package:flutterapp/graphQL/posts/mutations.dart';
 import 'package:flutterapp/graphQL/posts/queries.dart';
 import 'package:flutterapp/graphQL/prizes/mutations.dart';
@@ -8,10 +9,12 @@ import 'package:flutterapp/graphQL/prizes/queries.dart';
 import 'package:flutterapp/graphQL/users/mutations.dart';
 import 'package:flutterapp/graphQL/users/queries.dart';
 import 'package:flutterapp/models/event.dart';
+import 'package:flutterapp/models/organizer.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/models/prize.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:flutterapp/services/graphQL/events.dart';
+import 'package:flutterapp/services/graphQL/organizer.dart';
 import 'package:flutterapp/services/graphQL/posts.dart';
 import 'package:flutterapp/services/graphQL/prizes.dart';
 import 'package:flutterapp/services/graphQL/users.dart';
@@ -42,14 +45,20 @@ class GraphQLService implements DataService {
   }
 
   @override
-  Future<User> getUser(User user) {
-    final String queryParameter = getUserQuery(user.id);
+  Future<User> getUser(User currentUser, User user) {
+    final String queryParameter = getUserQuery(currentUser.id, user.id);
     return _client.mutate(_mutationOptions(queryParameter)).then(toUser);
   }
 
   @override
   Future<User> getUserTags(User user) {
     final String queryParameter = getUserTagsQuery(user.id);
+    return _client.mutate(_mutationOptions(queryParameter)).then(toUserTags);
+  }
+
+  @override
+  Future<User> getUserBookMarkedsPosts(User user) {
+    final String queryParameter = getUserBookMarkedsPostsQuery(user.id);
     return _client.mutate(_mutationOptions(queryParameter)).then(toUserTags);
   }
 
@@ -62,11 +71,21 @@ class GraphQLService implements DataService {
   }
 
   @override
-  Future<Post> getPost(User user, Post post) {
+  Future<Post> getPost(User user, Post post) async {
     final String queryParameter = getPostQuery(post.id);
-    return _client
+    User updatedUser = await getUserBookMarkedsPosts(user);
+
+    return await _client
         .mutate(_mutationOptions(queryParameter))
-        .then((value) => toPost(value, "post", user));
+        .then((value) => toPost(value, "post", updatedUser));
+  }
+
+  @override
+  Future<Organizer> getOrganizer(Organizer organizer) async {
+    final String queryParameter = getOrganizerQuery(organizer.id);
+    return await _client.mutate(_mutationOptions(queryParameter)).then(
+          (value) => toOrganizer(value),
+        );
   }
 
   @override
@@ -127,7 +146,18 @@ class GraphQLService implements DataService {
   Future<Post> toggleLikePost(User user, Post post) async {
     final String queryParameter = toggleLikePostMutation(user.id, post.id);
     await _client.mutate(_mutationOptions(queryParameter));
-    return getPost(user, post);
+    return await getPost(user, post);
+  }
+
+  @override
+  Future<Post> toggleUserPostBookmark(User user, Post post) async {
+    final String queryParameter =
+        toggleUserPostBookmarkMutation(user.id, post.id);
+    await _client.mutate(_mutationOptions(queryParameter));
+    User updatedUser = await getUser(user, user);
+    Post updatedPost = await getPost(updatedUser, post);
+
+    return updatedPost;
   }
 
   @override
@@ -150,13 +180,21 @@ class GraphQLService implements DataService {
   Future<bool> claimPrize(User user, Prize prize) async {
     final String queryParameter = claimPrizeMutation(prize.id, user.id);
     bool result;
-    await _client.mutate(_mutationOptions(queryParameter)).then((value) => result = value.data["claimPrize"]);
+    await _client
+        .mutate(_mutationOptions(queryParameter))
+        .then((value) => result = value.data["claimPrize"]);
     return result;
   }
 
   @override
   Future<void> addFriend(User user, User friend) {
     final String queryParameter = addFriendMutation(user.id, friend.id);
+    return _client.mutate(_mutationOptions(queryParameter));
+  }
+
+  @override
+  Future<void> removeFriend(User user, User friend) {
+    final String queryParameter = removeFriendMutation(user.id, friend.id);
     return _client.mutate(_mutationOptions(queryParameter));
   }
 }
