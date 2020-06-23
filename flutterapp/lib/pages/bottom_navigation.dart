@@ -32,7 +32,7 @@ class _BottomNavigation extends State<BottomNavigation> {
       _widgetOptions.add(SearchPage.create(context));
       _widgetOptions.add(CreatePostPage.create(context));
       _widgetOptions.add(EventsPage.create(context));
-      _widgetOptions.add(ProfilePage.create(context));
+      _widgetOptions.add(ProfilePage.create(context, user: null));
     }
   }
 

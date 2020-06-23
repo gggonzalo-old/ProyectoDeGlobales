@@ -1,8 +1,13 @@
 String getHomePostsQuery(String userId) {
   return '''
-query getUsers {
-	user(_user: "$userId") {
+query getHomePosts {
+	user(_currentUser: "$userId", _user: "$userId") {
+    bookmarkedPosts {
+      _id
+      imageURL
+    }
     friends {
+      _id
       username
       name
       photoURL

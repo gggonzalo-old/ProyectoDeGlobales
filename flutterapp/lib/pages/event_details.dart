@@ -92,14 +92,14 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                   Icon(
                                     Icons.business,
                                     color: Colors.white,
-                                    size: 16.0,
+                                    size: 20.0,
                                   ),
                                   SizedBox(width: 6),
                                   Flexible(
                                     child: Text(
                                       model.event.owner.name,
                                       style: TextStyle(
-                                          fontSize: 16.0,
+                                          fontSize: 20.0,
                                           color: Colors.white,
                                           fontStyle: FontStyle.italic),
                                     ),
@@ -135,13 +135,16 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                               WidgetSpan(
                                                 child: Icon(
                                                   Icons.location_on,
-                                                  size: 16.0,
+                                                  size: 20.0,
                                                   color: Colors.red,
                                                 ),
                                               ),
                                               TextSpan(
-                                                text: model.event.place,
-                                              )
+                                                  text: model.event.place,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: 20))
                                             ],
                                           ),
                                           style: TextStyle(fontSize: 14.0),
@@ -153,13 +156,16 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                               WidgetSpan(
                                                 child: Icon(
                                                   Icons.date_range,
-                                                  size: 16.0,
+                                                  size: 20.0,
                                                   color: Colors.blue,
                                                 ),
                                               ),
                                               TextSpan(
-                                                text: model.event.date,
-                                              )
+                                                  text: model.event.date,
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: 18))
                                             ],
                                           ),
                                           style: TextStyle(fontSize: 14.0),
@@ -174,7 +180,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                           MainAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
-                                          model.event.price.toString(),
+                                          "₡${model.event.price.toString()}",
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 20.0),
@@ -203,13 +209,21 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             SizedBox(height: 30.0),
                             Text(
                               "Description".toUpperCase(),
-                              style: Theme.of(context).textTheme.subtitle2,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle1
+                                  .copyWith(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 10.0),
                             Text(
                               model.event.description,
-                              textAlign: TextAlign.justify,
-                              style: Theme.of(context).textTheme.bodyText2,
+                              textAlign: TextAlign.start,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(fontSize: 16),
                             ),
                             SizedBox(height: 30.0),
                             Row(
@@ -375,11 +389,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     Color color;
     if (buttonType == ButtonType.enroll) {
       color = model.event.isEnrolled
-          ? Colors.red[500]
+          ? Colors.red[700]
           : Theme.of(context).buttonColor;
     } else {
       color = model.event.isInterested
-          ? Colors.red[500]
+          ? Colors.red[700]
           : Theme.of(context).buttonColor;
     }
     return Expanded(
@@ -390,7 +404,8 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         child: Text(
           message,
           style: TextStyle(
-              fontWeight: FontWeight.w700,
+              fontWeight: FontWeight.w800,
+              fontSize: 16,
               color: color == Colors.red[500] ? Colors.white : null),
         ),
         padding: const EdgeInsets.symmetric(

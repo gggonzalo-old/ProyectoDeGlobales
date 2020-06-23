@@ -17,14 +17,24 @@ class _EventsListState extends State<EventList> {
   EventModel get model => widget.model;
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: ScrollPhysics(),
-      itemCount: model.events.length,
-      itemBuilder: (context, index) {
-        return _buildEvent(context, model.events[index]);
-      },
-    );
+    return model.isLoading
+        ? Center(
+            child: CircularProgressIndicator(),
+          )
+        : model.events.isEmpty
+            ? Scaffold(
+                body: Center(
+                  child: Text("No events found"),
+                ),
+              )
+            : ListView.builder(
+                shrinkWrap: true,
+                physics: ScrollPhysics(),
+                itemCount: model.events.length,
+                itemBuilder: (context, index) {
+                  return _buildEvent(context, model.events[index]);
+                },
+              );
   }
 
   Widget _buildEvent(BuildContext context, Event event) {
@@ -65,7 +75,7 @@ class _EventsListState extends State<EventList> {
                         child: Container(
                           padding: EdgeInsets.all(10.0),
                           color: Theme.of(context).cardColor,
-                          child: Text(event.price.toString()),
+                          child: Text("₡${event.price.toString()}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),),
                         ),
                       )
                     ],
@@ -78,12 +88,12 @@ class _EventsListState extends State<EventList> {
                         Text(
                           event.name,
                           style: TextStyle(
-                              fontSize: 18.0, fontWeight: FontWeight.bold),
+                              fontSize: 20.0, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
                           height: 5.0,
                         ),
-                        Text(event.place),
+                        Text("Date: ${event.date}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
                         SizedBox(
                           height: 10.0,
                         ),

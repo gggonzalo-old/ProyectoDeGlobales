@@ -9,10 +9,11 @@ class User {
       this.username,
       this.photoUrl,
       this.isFriend,
-      this.friends,
-      this.posts,
+      this.friends = const [],
+      this.posts = const [],
+      this.points = 0,
       this.prizesClaimed = const [],
-      this.favoritePosts = const [],
+      this.bookmarkedPosts = const [],
       this.enrolledEvents = const [],
       this.eventTags = const []});
   String id;
@@ -20,10 +21,11 @@ class User {
   String username;
   String photoUrl;
   bool isFriend;
+  int points;
   List<User> friends;
   List<Post> posts;
   List<Prize> prizesClaimed;
-  List<Post> favoritePosts;
+  List<Post> bookmarkedPosts;
   List<Event> enrolledEvents;
   List<String> eventTags;
 
@@ -31,7 +33,7 @@ class User {
     List friends = json["friends"];
     List posts = json["posts"];
     List prizesClaimed = json["prizesClaimed"];
-    List favoritePosts = json["favorites"];
+    List bookmarkedPosts = json["bookmarkedPosts"];
     List enrolledEvents = json["enrolledEvents"];
     List eventTags = json["eventTags"];
 
@@ -46,14 +48,14 @@ class User {
           .toList(growable: false);
     }
 
-     if (prizesClaimed != null) {
+    if (prizesClaimed != null) {
       prizesClaimed = prizesClaimed
           .map((repoJson) => Prize.fromJson(repoJson))
           .toList(growable: false);
     }
 
-    if (favoritePosts != null) {
-      favoritePosts = favoritePosts
+    if (bookmarkedPosts != null) {
+      bookmarkedPosts = bookmarkedPosts
           .map((repoJson) => Post.fromJson(repoJson))
           .toList(growable: false);
     }
@@ -72,15 +74,15 @@ class User {
 
     return new User(
         id: json["_id"],
-        //name: DateTime.parse(json["createdAt"]),
         name: json["name"],
         username: json["username"],
         photoUrl: json["photoURL"],
         isFriend: json["isFriend"],
+        points: json["points"],
         friends: friends,
         posts: posts,
         prizesClaimed: prizesClaimed,
-        favoritePosts: favoritePosts,
+        bookmarkedPosts: bookmarkedPosts,
         enrolledEvents: enrolledEvents,
         eventTags: eventTags);
   }

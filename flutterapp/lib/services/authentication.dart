@@ -98,7 +98,7 @@ class AuthenticationFirebase implements AuthenticationBase {
   @override
   Future<void> signOut() async {
     final googleSignIn = GoogleSignIn();
-    await googleSignIn.signOut();
     await _firebaseAuth.signOut();
+    await googleSignIn.signOut();
   }
 }

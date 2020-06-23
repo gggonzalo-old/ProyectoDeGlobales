@@ -12,14 +12,15 @@ String getUsersQuery(String id, String filter) {
   """;
 }
 
-String getUserQuery(String id) {
+String getUserQuery(String currentUserID, String userID) {
   return """ 
     query getUser {
-      user(_user: "$id") {
+      user(_currentUser: "$currentUserID", _user: "$userID") {
         _id
         username
         name
         photoURL
+        points
         posts {
           _id
           date
@@ -41,6 +42,10 @@ String getUserQuery(String id) {
         }
         prizesClaimed {
           _id
+          name
+          description
+          cost 
+          imageURL
           QRURL
         }
         friends {
@@ -51,6 +56,11 @@ String getUserQuery(String id) {
           name
           imageURL
         }
+        bookmarkedPosts {
+          _id
+          imageURL
+        }
+        isFriend
       }
     }
   """;
@@ -59,8 +69,21 @@ String getUserQuery(String id) {
 String getUserTagsQuery(String id) {
   return """ 
     query getUser {
-      user(_user: "$id") {
+      user(_currentUser: "$id", _user: "$id") {
         eventTags
+      }
+    }
+  """;
+}
+
+String getUserBookMarkedsPostsQuery(String id) {
+  return """ 
+    query getUserBookMarkedsPosts {
+      user(_currentUser: "$id", _user: "$id") {
+        _id
+        bookmarkedPosts {
+          _id
+        }
       }
     }
   """;

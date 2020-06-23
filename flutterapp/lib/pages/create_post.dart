@@ -1,9 +1,6 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
@@ -55,9 +52,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
     } else {
       pickedFile = await picker.getImage(source: ImageSource.camera);
     }
-
-    File image = File(pickedFile.path);
-    model.selectImage(image);
+    if (pickedFile != null) {
+      File image = File(pickedFile.path);
+      model.selectImage(image);
+    }
   }
 
   @override
@@ -81,7 +79,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                "Selected image",
+                                "Select an image",
                                 style: TextStyle(
                                     fontSize: 25.0,
                                     fontWeight: FontWeight.bold),
@@ -95,39 +93,31 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 64.0),
                             child: Center(
-                              child: DottedBorder(
-                                strokeCap: StrokeCap.round,
-                                color: Theme.of(context).primaryColorDark,
-                                dashPattern: [10, 6],
-                                strokeWidth: 3,
-                                child: model.image == null
-                                    ? Column(
-                                        children: <Widget>[
-                                          Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 32.0,
-                                                  right: 32,
-                                                  top: 16),
-                                              child: Icon(
-                                                Icons.image,
-                                                size: 150,
-                                              )),
-                                          SizedBox(
-                                            height: 8,
-                                          ),
-                                          Text("Choosed image"),
-                                          SizedBox(
-                                            height: 8,
-                                          )
-                                        ],
-                                      )
-                                    : Container(
-                                        child: Image.file(model.image,
-                                            fit: BoxFit.fill),
-                                        height: 150,
-                                        width: double.infinity,
-                                      ),
-                              ),
+                              child: model.image == null
+                                  ? Column(
+                                      children: <Widget>[
+                                        Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 32.0, right: 32, top: 16),
+                                            child: Icon(
+                                              Icons.image,
+                                              size: 150,
+                                            )),
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Text("Choosed image"),
+                                        SizedBox(
+                                          height: 8,
+                                        )
+                                      ],
+                                    )
+                                  : Container(
+                                      child: Image.file(model.image,
+                                          fit: BoxFit.fill),
+                                      height: 200,
+                                      width: double.infinity,
+                                    ),
                             ),
                           ),
                           SizedBox(
@@ -206,11 +196,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         ),
                         Text(
                           "Tag",
-                          style: TextStyle(fontSize: 18),
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         model.userTags.isEmpty
-                            ? Center(
-                                child: Text("Join an event to unlock a tag."),
+                            ? Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16.0),
+                                child: Center(
+                                  child: Text("Join an event to unlock a tag."),
+                                ),
                               )
                             : Row(
                                 children: <Widget>[
@@ -251,10 +245,11 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             ),
                             padding: EdgeInsets.symmetric(vertical: 16.0),
                             color: Theme.of(context).buttonColor,
-                            onPressed:
-                                model.dropdownValue != "" && model.image != null
-                                    ? model.createPost
-                                    : null,
+                            onPressed: model.dropdownValue != "" &&
+                                    model.userTags.isNotEmpty &&
+                                    model.image != null
+                                ? model.createPost
+                                : null,
                             elevation: 6,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.all(

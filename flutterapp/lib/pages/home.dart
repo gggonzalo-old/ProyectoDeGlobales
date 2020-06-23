@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutterapp/pages/create_post.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/view_models/home_model.dart';
 import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/widgets/home_posts_list_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -59,11 +61,9 @@ class _HomePageState extends State<HomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(
-            'WorldHope',
-            style: TextStyle(
-              fontFamily: 'Arial',
-              fontSize: 32.0,
-            ),
+            'World Hope',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.justAnotherHand(fontSize: 38),
           ),
           Row(
             children: <Widget>[
@@ -72,7 +72,14 @@ class _HomePageState extends State<HomePage> {
                 child: IconButton(
                   icon: Icon(Icons.add_a_photo),
                   iconSize: 30.0,
-                  onPressed: () => print('Direct Messages'),
+                  onPressed: () => {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreatePostPage.create(context),
+                      ),
+                    )
+                  },
                 ),
               )
             ],
@@ -92,72 +99,15 @@ class _HomePageState extends State<HomePage> {
               child: CircularProgressIndicator(),
             ),
           )
-        : model.posts.length > 0
+        : model.posts.isNotEmpty
             ? HomePostList(
                 model: model,
               )
-            : Align(
-                alignment: Alignment.center,
+            : Container(
+                height: 500,
                 child: Center(
                   child: Text("Not posts found add friends"),
                 ),
               );
   }
 }
-
-/*Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                        child: Text(
-                          'Events',
-                          style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24.0,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),*/
-/*Container(
-                  width: double.infinity,
-                  height: 100.0,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: stories.length + 1,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0) {
-                        return SizedBox(width: 10.0);
-                      }
-                      return Container(
-                        margin: EdgeInsets.all(10.0),
-                        width: 60.0,
-                        height: 60.0,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black45,
-                              offset: Offset(0, 2),
-                              blurRadius: 6.0,
-                            ),
-                          ],
-                        ),
-                        child: CircleAvatar(
-                          child: ClipOval(
-                            child: Image(
-                              height: 60.0,
-                              width: 60.0,
-                              image: CachedNetworkImageProvider(stories[index - 1]),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),*/

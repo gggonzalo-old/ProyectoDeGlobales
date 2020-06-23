@@ -66,17 +66,24 @@ class _SearchPageState extends State<SearchPage> {
       child: Scaffold(
         appBar: AppBar(
           leading: Icon(Icons.search),
+          backgroundColor: Theme.of(context).hoverColor,
           title: TextField(
-            controller: searchModel.searchController,
-            cursorColor: Colors.white,
             style: TextStyle(color: Colors.white),
+            controller: searchModel.searchController,
             onChanged: searchModel.updateSearch,
           ),
           bottom: TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.photo_library)),
               Tab(
-                icon: Icon(Icons.person),
+                child: Text(
+                  "#",
+                  style: TextStyle(fontSize: 24),
+                ),
+              ),
+              Tab(
+                icon: Icon(
+                  Icons.person,
+                ),
               ),
             ],
             onTap: (index) => {

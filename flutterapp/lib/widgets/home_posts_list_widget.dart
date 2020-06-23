@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutterapp/models/post.dart';
 import 'package:flutterapp/pages/post_details.dart';
+import 'package:flutterapp/pages/profile.dart';
 import 'package:flutterapp/view_models/home_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -31,7 +32,7 @@ class _HomePostListState extends State<HomePostList> {
       padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
       child: Container(
         width: double.infinity,
-        height: 560,
+        height: 500,
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(25.0),
@@ -55,14 +56,25 @@ class _HomePostListState extends State<HomePostList> {
                           ),
                         ],
                       ),
-                      child: CircleAvatar(
-                        child: ClipOval(
-                          child: Image(
-                            height: 50.0,
-                            width: 50.0,
-                            image: CachedNetworkImageProvider(
-                                post.owner.photoUrl),
-                            fit: BoxFit.cover,
+                      child: GestureDetector(
+                        onTap: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  ProfilePage.create(context, user: post.owner),
+                            ),
+                          )
+                        },
+                        child: CircleAvatar(
+                          child: ClipOval(
+                            child: Image(
+                              height: 50.0,
+                              width: 50.0,
+                              image: CachedNetworkImageProvider(
+                                  post.owner.photoUrl),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),
@@ -81,8 +93,8 @@ class _HomePostListState extends State<HomePostList> {
                   ),
                   InkWell(
                     onDoubleTap: () => print('Like post'),
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      Post updatedPost = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => PostDetailsPage.create(
@@ -91,11 +103,12 @@ class _HomePostListState extends State<HomePostList> {
                           ),
                         ),
                       );
+                      model.updatePost(updatedPost);
                     },
                     child: Container(
                       margin: EdgeInsets.all(10.0),
                       width: double.infinity,
-                      height: 400.0,
+                      height: 340.0,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(25.0),
                         boxShadow: [
@@ -105,8 +118,7 @@ class _HomePostListState extends State<HomePostList> {
                           ),
                         ],
                         image: DecorationImage(
-                          image: CachedNetworkImageProvider(
-                              post.imageUrl),
+                          image: CachedNetworkImageProvider(post.imageUrl),
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -121,16 +133,17 @@ class _HomePostListState extends State<HomePostList> {
                           children: <Widget>[
                             Row(
                               children: <Widget>[
-                                IconButton(
-                                  icon: Icon(post.isLiked
-                                      ? Icons.favorite
-                                      : Icons.favorite_border),
-                                  iconSize: 30.0,
-                                  color:
-                                      post.isLiked ? Colors.red : null,
-                                  onPressed: () =>
-                                      {model.toggleLike(post)},
-                                ),
+                                model.isLoadingLike
+                                    ? CircularProgressIndicator()
+                                    : IconButton(
+                                        icon: Icon(post.isLiked
+                                            ? Icons.favorite
+                                            : Icons.favorite_border),
+                                        iconSize: 30.0,
+                                        color: post.isLiked ? Colors.red : null,
+                                        onPressed: () =>
+                                            {model.toggleLike(post)},
+                                      ),
                                 Text(
                                   post.usersWhoLiked.length.toString(),
                                   style: TextStyle(
@@ -146,17 +159,7 @@ class _HomePostListState extends State<HomePostList> {
                                 IconButton(
                                   icon: Icon(Icons.chat),
                                   iconSize: 30.0,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => PostDetailsPage.create(
-                                          context,
-                                          post,
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                  onPressed: () {},
                                 ),
                                 Text(
                                   post.comments.length.toString(),
@@ -169,11 +172,16 @@ class _HomePostListState extends State<HomePostList> {
                             ),
                           ],
                         ),
-                        IconButton(
-                          icon: Icon(Icons.bookmark_border),
-                          iconSize: 30.0,
-                          onPressed: () => print('Save post'),
-                        ),
+                        model.isLoadingBookMarked
+                            ? CircularProgressIndicator()
+                            : IconButton(
+                                icon: Icon(post.isBookMarked
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border),
+                                iconSize: 30.0,
+                                color: post.isBookMarked ? Colors.blue : null,
+                                onPressed: () => {model.toggleBookmark(post)},
+                              ),
                       ],
                     ),
                   ),

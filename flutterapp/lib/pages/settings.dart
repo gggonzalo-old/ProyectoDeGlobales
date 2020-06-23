@@ -1,14 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutterapp/providers/theme_provider.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/models/user.dart';
 import 'package:provider/provider.dart';
 
-class Settings extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
+  @override
+  _SettingsPageState createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  bool isDarkMode = false;
+  String switchThemeText = "Off";
+
+  @override
+  void initState() {
+    super.initState();
+    final themeChanger = Provider.of<ThemeChanger>(context, listen: false);
+    isDarkMode = ThemeData.light() == themeChanger.getTheme() ? false : true;
+  }
+
   Future<void> _signOut(BuildContext context) async {
     try {
-      final authentication = Provider.of<AuthenticationBase>(context, listen: false);
+      final authentication =
+          Provider.of<AuthenticationBase>(context, listen: false);
       await authentication.signOut();
+      Navigator.of(context).pop();
+    } catch (e) {
+      e.toString();
+    }
+  }
+
+  Future<void> _toggleTheme(BuildContext context) async {
+    try {
+      final themeChanger = Provider.of<ThemeChanger>(context, listen: false);
+      if (ThemeData.light() == themeChanger.getTheme()) {
+        await themeChanger.setTheme(ThemeData.dark());
+        setState(() {
+          switchThemeText = "On";
+          isDarkMode = true;
+        });
+      } else {
+        await themeChanger.setTheme(ThemeData.light());
+        setState(() {
+          switchThemeText = "Off";
+          isDarkMode = false;
+        });
+      }
     } catch (e) {
       e.toString();
     }
@@ -16,7 +55,8 @@ class Settings extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authentication = Provider.of<AuthenticationBase>(context, listen: false);
+    final authentication =
+        Provider.of<AuthenticationBase>(context, listen: false);
     return FutureBuilder<User>(
       future: authentication.currentUser(),
       builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
@@ -49,8 +89,7 @@ class Settings extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     image: DecorationImage(
-                      image: CachedNetworkImageProvider(
-                          "https://firebasestorage.googleapis.com/v0/b/dl-flutter-ui-challenges.appspot.com/o/img%2Fphotographer.jpg?alt=media"),
+                      image: CachedNetworkImageProvider(user.photoUrl),
                       fit: BoxFit.cover,
                     ),
                     border: Border.all(
@@ -104,9 +143,9 @@ class Settings extends StatelessWidget {
               title: Text(
                 "Dark mode", /*style: whiteBoldText,*/
               ),
-              subtitle: Text("Off"),
-              value: false,
-              onChanged: (val) {},
+              subtitle: Text(switchThemeText),
+              value: isDarkMode,
+              onChanged: (value) => {_toggleTheme(context)},
             ),
             ListTile(
               title: Text(

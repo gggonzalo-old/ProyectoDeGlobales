@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutterapp/pages/create_post.dart';
 import 'package:flutterapp/pages/landing_page.dart';
+import 'package:flutterapp/providers/theme_provider.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/services/graphQL/graphQL_service.dart';
@@ -21,13 +21,25 @@ class MyApp extends StatelessWidget {
         Provider<DataService>(
           create: (BuildContext context) => GraphQLService(),
         ),
+        ChangeNotifierProvider<ThemeChanger>(
+          create: (BuildContext context) => ThemeChanger(ThemeData.light()),
+        ),
       ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData.dark(),
-        home: LandingPage(),
-      ),
+      child: MaterialAppWithTheme(),
+    );
+  }
+}
+
+class MaterialAppWithTheme extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Provider.of<ThemeChanger>(context);
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Flutter Demo',
+      home: LandingPage(),
+      theme: theme.getTheme(),
     );
   }
 }
