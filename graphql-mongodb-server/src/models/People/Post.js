@@ -4,11 +4,13 @@ import { PostComment } from "./PostComment";
 export const Post = mongoose.model("Post", {
   date: Date,
   description: String,
-  imageUrl: String,
+  imageURL: String,
   comments: [PostComment.schema],
+  eventTag: String,
+  verified: Boolean,
   usersWhoLiked: [
     {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
     },
   ],

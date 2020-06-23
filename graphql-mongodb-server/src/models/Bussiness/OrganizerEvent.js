@@ -3,14 +3,22 @@ import mongoose from "mongoose";
 export const OrganizerEvent = mongoose.model(
   "OrganizerEvent",
   {
+    _id: String,
     name: String,
     description: String,
     date: Date,
     price: Number,
-    imageUrl: String,
+    place: String,
+    imageURL: String,
     usersEnrolled: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
+        ref: "User",
+      },
+    ],
+    usersInterested: [
+      {
+        type: String,
         ref: "User",
       },
     ],

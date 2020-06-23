@@ -1,11 +1,11 @@
 import { User } from "./models/People/User";
-import { Post } from "./models/Post";
+import { Post } from "./models/People/Post";
 import { Organizer } from "./models/Bussiness/Organizer";
-import { OrganizerEvent } from "./models/Bussiness/OrganizerEvent";
+import { Prize } from "./models/App/Prize";
 import { GraphQLScalarType } from "graphql";
-import mongoose from "mongoose";
 import { Kind } from "graphql/language";
-import { PostComment } from "./models/PostComment";
+import { PostComment } from "./models/People/PostComment";
+import { OrganizerEvent } from "./models/Bussiness/OrganizerEvent";
 
 export const resolvers = {
   Date: new GraphQLScalarType({
@@ -26,120 +26,237 @@ export const resolvers = {
     },
   }),
   Query: {
-    user: async (_, { _user }) =>
-      await User.findById(_user)
-        .populate("friends")
-        .populate("enrolledEvents")
-        .populate("posts.usersWhoLiked")
-        .populate("posts.comments.user"),
-    users: async () =>
-      await User.find()
-        .populate("friends")
-        .populate("enrolledEvents")
-        .populate("posts.usersWhoLiked")
-        .populate("posts.comments.user"),
-    friendsPostsSorted: async (_, { _user }) => {
-      console.log(
-        await User.aggregate([
-          { $match: { _id: { $in: (await User.findById(_user)).friends } } },
-          { $unwind: "$posts" },
-          {
-            $group: {
-              _id: null,
-              friendsPosts: { $addToSet: "$posts" },
+    event: async (_, { _event }) => {
+      const event = await OrganizerEvent.findById(_event)
+        .populate("usersEnrolled")
+        .populate("usersInterested")
+        .lean();
+
+      return new Object({
+        ...event,
+        owner: await Organizer.findOne({
+          events: _event,
+        }).lean(),
+      });
+    },
+    events: async (_, { filter }) => {
+      const query = await OrganizerEvent.find({
+        name: { $regex: ".*" + filter + ".*", $options: "i" },
+      })
+        .populate("usersEnrolled")
+        .populate("usersInterested")
+        .lean();
+
+      // const query = await Organizer.aggregate([
+      //   { $unwind: "$events" },
+      //   {
+      //     $lookup: {
+      //       from: "users",
+      //       localField: "events.usersEnrolled",
+      //       foreignField: "_id",
+      //       as: "events.usersEnrolled",
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "users",
+      //       localField: "events.usersInterested",
+      //       foreignField: "_id",
+      //       as: "events.usersInterested",
+      //     },
+      //   },
+      //   {
+      //     $match: {
+      //       "events.name": { $regex: ".*" + filter + ".*", $options: "i" },
+      //     },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: null,
+      //       events: { $addToSet: "$events" },
+      //     },
+      //   },
+      //   { $project: { _id: 0, events: 1 } },
+      // ]);
+
+      return query.length > 0
+        ? query
+            .sort(
+              (e1, e2) =>
+                new Date(e1.date).getTime() - new Date(e2.date).getTime()
+            )
+            .map(
+              async (event) =>
+                new Object({
+                  ...event,
+                  owner: await Organizer.findOne({ events: event._id }).lean(),
+                })
+            )
+        : [];
+    },
+    post: async (_, { _post }) => {
+      const post = await Post.findById(_post)
+        .populate("usersWhoLiked")
+        .populate("comments.user")
+        .lean();
+
+      return new Object({
+        ...post,
+        owner: await User.findOne({ posts: _post }).lean(),
+      });
+    },
+    posts: async (_, { eventTag }) => {
+      const query = await Post.find({ eventTag: eventTag }).lean();
+
+      return query.length > 0
+        ? query.map(
+            async (post) =>
+              new Object({
+                ...post,
+                owner: await User.findOne({ posts: post._id }),
+              })
+          )
+        : [];
+    },
+    user: async (_, { _user, _currentUser }) => {
+      const user = await User.findById(_user)
+        .populate({
+          path: "friends",
+          populate: {
+            path: "posts",
+            populate: {
+              path: "usersWhoLiked",
             },
           },
-          {
-            $project: {
-              _id: 0,
-              friendsPosts: 1,
+        })
+        .populate("enrolledEvents")
+        .populate("attractiveEvents")
+        .populate({
+          path: "posts",
+          populate: {
+            path: "usersWhoLiked",
+          },
+        })
+        .populate({
+          path: "posts",
+          populate: {
+            path: "comments",
+            populate: {
+              path: "user",
             },
           },
-          { $sort: { "friendsPosts.date": 1 } },
-        ])
+        })
+        .populate("bookmarkedPosts")
+        .populate("prizesClaimed")
+        .lean();
+
+      user.posts = user.posts.sort(
+        (p1, p2) => new Date(p2.date).getTime() - new Date(p1.date).getTime()
       );
+
+      return new Object({
+        ...user,
+        isFriend: user.friends.some((friend) => friend._id === _currentUser),
+      });
+    },
+    users: async (_, { _user, filter }) => {
+      const userFriends = (await User.findById(_user)).friends;
+
+      return (
+        await User.find({
+          _id: { $ne: _user },
+          $or: [
+            { username: { $regex: ".*" + filter + ".*", $options: "i" } },
+            { name: { $regex: ".*" + filter + ".*", $options: "i" } },
+          ],
+        })
+          .populate("friends")
+          .populate("enrolledEvents")
+          .populate("attractiveEvents")
+          .populate({
+            path: "posts",
+            populate: {
+              path: "usersWhoLiked",
+            },
+          })
+          .populate({
+            path: "posts",
+            populate: {
+              path: "comments",
+              populate: {
+                path: "user",
+              },
+            },
+          })
+          .lean()
+      )
+        .map(
+          (friend) =>
+            new Object({
+              ...friend,
+              isFriend: userFriends.some((friendId) => friendId === friend._id),
+            })
+        )
+        .sort((user) => (user.isFriend ? -1 : 1));
     },
     organizer: async (_, { _organizer }) =>
-      await Organizer.findById(_organizer).populate("events.usersEnrolled"),
+      await Organizer.findById(_organizer)
+        .populate({
+          path: "events",
+          populate: {
+            path: "usersWhoLiked",
+          },
+        })
+        .populate({
+          path: "events",
+          populate: {
+            path: "usersInterested",
+          },
+        }),
+    prizes: async (_, { filter }) =>
+      (
+        await Prize.find({
+          name: { $regex: ".*" + filter + ".*", $options: "i" },
+        }).lean()
+      ).sort((p1, p2) => p1.cost - p2.cost),
   },
   Mutation: {
-    createOrganizer: async (_, { name, description, imageUrl }) => {
-      const organizer = await Organizer.create({
-        name: name,
-        description: description,
-        imageUrl: imageUrl,
-        posts: [],
-        events: [],
-      });
-
-      return organizer;
-    },
-    createOrganizerPost: async (_, { _organizer, description }) => {
-      const post = new Post({
-        date: new Date(),
-        description: description,
-        imageUrl: `www.images.com/${_organizer}`,
-        usersWhoLiked: [],
-      });
-
-      await Organizer.findByIdAndUpdate(
-        { _id: _organizer },
-        { $push: { posts: post } },
-        { useFindAndModify: false }
-      );
-
-      return post;
-    },
-    createEvent: async (
-      _,
-      { _organizer, name, description, date, price, imageUrl }
-    ) => {
-      const organizerEvent = new OrganizerEvent({
-        name: name,
-        description: description,
-        date: date ? date : new Date(),
-        price: price,
-        imageUrl: imageUrl,
-        usersEnrolled: [],
-      });
-
-      await Organizer.findByIdAndUpdate(
-        { _id: _organizer },
-        { $push: { events: organizerEvent } },
-        { useFindAndModify: false }
-      );
-
-      return organizerEvent;
-    },
-    createUser: async (_, { _id, username, name, photoUrl }) => {
+    createUser: async (_, { _id, username, name, photoURL }) => {
       const user = await User.create({
         _id: _id,
         username: username,
         name: name,
-        photoUrl: photoUrl,
+        photoURL: photoURL,
+        points: 0,
         posts: [],
+        bookmarkedPosts: [],
+        prizesClaimed: [],
+        eventTags: [],
         friends: [],
         enrolledEvents: [],
+        attractiveEvents: [],
       });
 
       return user;
     },
-    createUserPost: async (_, { _user, description, imageUrl }) => {
-      const post = new Post({
+    createUserPost: async (_, { _user, description, eventTag, imageURL }) => {
+      const post = await Post.create({
         date: new Date(),
         description: description,
-        imageUrl: imageUrl,
+        imageURL: imageURL,
+        eventTag: eventTag,
+        verified: false,
         comments: [],
         usersWhoLiked: [],
       });
 
       await User.findByIdAndUpdate(
         { _id: _user },
-        { $push: { posts: post } },
+        { $push: { posts: post._id }, $pull: { eventTags: eventTag } },
         { useFindAndModify: false }
       );
 
-      return post;
+      return true;
     },
     addFriend: async (_, { _user, _friend }) => {
       await User.findByIdAndUpdate(
@@ -155,44 +272,120 @@ export const resolvers = {
 
       return true;
     },
-    enrollEvent: async (_, { _user, _event }) => {
+    removeFriend: async (_, { _user, _friend }) => {
       await User.findByIdAndUpdate(
         { _id: _user },
-        { $push: { enrolledEvents: _event } },
+        { $pull: { friends: _friend } },
         { useFindAndModify: false }
       );
-      await Organizer.findOneAndUpdate(
-        { "events._id": _event },
-        { $push: { "events.$.usersEnrolled": _user } },
-        { useFindAndModify: false }
-      );
-
-      return true;
-    },
-    likeOrganizerPost: async (_, { _user, _post }) => {
-      await Organizer.findOneAndUpdate(
-        { "posts._id": _post },
-        { $push: { "posts.$.usersWhoLiked": _user } },
+      await User.findByIdAndUpdate(
+        { _id: _friend },
+        { $pull: { friends: _user } },
         { useFindAndModify: false }
       );
 
       return true;
     },
-    likeUserPost: async (_, { _user, _post }) => {
-      await User.findOneAndUpdate(
-        { "posts._id": _post },
-        { $push: { "posts.$.usersWhoLiked": _user } },
-        { useFindAndModify: false }
-      );
+    toggleEventEnrollment: async (_, { _user, _event }) => {
+      const event = await OrganizerEvent.findById(_event);
+
+      if (event.usersEnrolled.some((userId) => userId === _user)) {
+        await User.findByIdAndUpdate(
+          { _id: _user },
+          { $pull: { enrolledEvents: _event, eventTags: event._id } },
+          { useFindAndModify: false }
+        );
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $pull: { usersEnrolled: _user } },
+          { useFindAndModify: false }
+        );
+      } else {
+        await User.findByIdAndUpdate(
+          { _id: _user },
+          { $push: { enrolledEvents: _event, eventTags: event._id } },
+          { useFindAndModify: false }
+        );
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $push: { usersEnrolled: _user } },
+          { useFindAndModify: false }
+        );
+      }
+
+      return true;
+    },
+    toggleEventInInterested: async (_, { _user, _event }) => {
+      const event = await OrganizerEvent.findById(_event);
+
+      if (event.usersInterested.some((userId) => userId === _user)) {
+        await User.findByIdAndUpdate(
+          { _id: _user },
+          { $pull: { attractiveEvents: _event } },
+          { useFindAndModify: false }
+        );
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $pull: { usersInterested: _user } },
+          { useFindAndModify: false }
+        );
+      } else {
+        await User.findByIdAndUpdate(
+          { _id: _user },
+          { $push: { attractiveEvents: _event } },
+          { useFindAndModify: false }
+        );
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $push: { usersInterested: _user } },
+          { useFindAndModify: false }
+        );
+      }
+
+      return true;
+    },
+    toggleUserPostLike: async (_, { _user, _post }) => {
+      const post = await Post.findById(_post);
+
+      if (post.usersWhoLiked.some((userId) => userId === _user))
+        await Post.findByIdAndUpdate(
+          _post,
+          { $pull: { usersWhoLiked: _user } },
+          { useFindAndModify: false }
+        );
+      else
+        await Post.findByIdAndUpdate(
+          _post,
+          { $push: { usersWhoLiked: _user } },
+          { useFindAndModify: false }
+        );
+
+      return true;
+    },
+    toggleUserPostBookmark: async (_, { _user, _post }) => {
+      const user = await User.findById(_user);
+
+      if (user.bookmarkedPosts.some((postId) => postId == _post))
+        await User.findByIdAndUpdate(
+          _user,
+          { $pull: { bookmarkedPosts: _post } },
+          { useFindAndModify: false }
+        );
+      else
+        await User.findByIdAndUpdate(
+          _user,
+          { $push: { bookmarkedPosts: _post } },
+          { useFindAndModify: false }
+        );
 
       return true;
     },
     commentUserPost: async (_, { _post, _user, content }) => {
-      await User.findOneAndUpdate(
-        { "posts._id": _post },
+      await Post.findByIdAndUpdate(
+        _post,
         {
           $push: {
-            "posts.$.comments": new PostComment({
+            comments: new PostComment({
               content: content,
               user: _user,
               date: new Date(),
@@ -204,23 +397,57 @@ export const resolvers = {
 
       return true;
     },
+    claimPrize: async (_, { _prize, _user }) => {
+      const prizeCost = (await Prize.findById(_prize)).cost;
+      const user = await User.findById(_user);
+
+      if (user.points >= prizeCost) {
+        await User.findByIdAndUpdate(
+          _user,
+          {
+            $push: {
+              prizesClaimed: _prize,
+            },
+            $inc: {
+              points: -prizeCost,
+            },
+          },
+          { useFindAndModify: false }
+        );
+
+        return true;
+      }
+
+      return false;
+    },
+
+    verifyPost: async (_, { _post }) => {
+      const post = await Post.findById(_post);
+      const event = await OrganizerEvent.findById(post.eventTag);
+
+      await Post.findByIdAndUpdate(
+        _post,
+        {
+          $set: { verified: true },
+        },
+        {
+          useFindAndModify: false,
+        }
+      );
+
+      await User.findOneAndUpdate(
+        { posts: _post },
+        {
+          $inc: {
+            points: Math.floor(event.price * 0.25),
+          },
+        },
+        {
+          useFindAndModify: false,
+        }
+      );
+
+      return true;
+    },
   },
 };
-
-// friends: async (_, { _user }) =>
-// await User.find({
-//   _id: {
-//     $in: User.findById(_user).friends,
-//   },
-// }),
-
-// usersEnrolled: async (_, { _event }) =>
-// await User.find({ enrolledEvents: _event })
-
-// usersWhoLikedPost: async (_, { _post }) =>
-// await User.find({
-//   _id: {
-//     $in: (await User.findOne({ "posts._id": _post })).posts.id(_post)
-//       .usersWhoLiked,
-//   },
-// })
