@@ -27,10 +27,6 @@ export const resolvers = {
   }),
   Query: {
     event: async (_, { _event }) => {
-      const organizer = await Organizer.findOne({
-        "events._id": _event,
-      }).lean();
-
       const event = await OrganizerEvent.findById(_event)
         .populate("usersEnrolled")
         .populate("usersInterested")
@@ -38,13 +34,18 @@ export const resolvers = {
 
       return new Object({
         ...event,
-        owner: organizer,
+        owner: await Organizer.findOne({
+          events: _event,
+        }).lean(),
       });
     },
     events: async (_, { filter }) => {
-      const query = await OrganizerEvent.aggregate([]);
-
-      console.log(query);
+      const query = await OrganizerEvent.find({
+        name: { $regex: ".*" + filter + ".*", $options: "i" },
+      })
+        .populate("usersEnrolled")
+        .populate("usersInterested")
+        .lean();
 
       // const query = await Organizer.aggregate([
       //   { $unwind: "$events" },
@@ -79,7 +80,7 @@ export const resolvers = {
       // ]);
 
       return query.length > 0
-        ? query[0]["events"]
+        ? query
             .sort(
               (e1, e2) =>
                 new Date(e1.date).getTime() - new Date(e2.date).getTime()
@@ -88,70 +89,37 @@ export const resolvers = {
               async (event) =>
                 new Object({
                   ...event,
-                  owner: await Organizer.findOne({ "events._id": event._id }),
+                  owner: await Organizer.findOne({ events: event._id }).lean(),
                 })
             )
         : [];
     },
     post: async (_, { _post }) => {
-      const user = await User.findOne({ "posts._id": _post })
-        .populate("posts.usersWhoLiked")
-        .populate("posts.comments.user")
+      const post = await Post.findById(_post)
+        .populate("usersWhoLiked")
+        .populate("comments.user")
         .lean();
-      const post = user.posts.find((post) => post._id == _post);
 
       return new Object({
         ...post,
-        owner: user,
+        owner: await User.findOne({ posts: _post }).lean(),
       });
     },
     posts: async (_, { eventTag }) => {
-      const query = await User.aggregate([
-        { $unwind: "$posts" },
-        { $match: { "posts.eventTag": eventTag } },
-        {
-          $group: {
-            _id: null,
-            posts: { $addToSet: "$posts" },
-          },
-        },
-        { $project: { _id: 0, posts: 1 } },
-      ]);
+      const query = await Post.find({ eventTag: eventTag }).lean();
 
       return query.length > 0
-        ? query[0]["posts"].map(
+        ? query.map(
             async (post) =>
               new Object({
                 ...post,
-                owner: await User.findOne({ "posts._id": post._id }),
+                owner: await User.findOne({ posts: post._id }),
               })
           )
         : [];
     },
-    user: async (_, { _user }) => {
-      console.log(
-        await User.findById(_user)
-          .populate({
-            path: "friends",
-            populate: {
-              path: "posts",
-              populate: {
-                path: "usersWhoLiked",
-              },
-            },
-          })
-          .populate("enrolledEvents")
-          .populate("attractiveEvents")
-          .populate({
-            path: "posts",
-            populate: {
-              path: "usersWhoLiked",
-            },
-          })
-          .populate("posts.comments.user")
-      );
-
-      return await User.findById(_user)
+    user: async (_, { _user, _currentUser }) => {
+      const user = await User.findById(_user)
         .populate({
           path: "friends",
           populate: {
@@ -169,7 +137,27 @@ export const resolvers = {
             path: "usersWhoLiked",
           },
         })
-        .populate("posts.comments.user");
+        .populate({
+          path: "posts",
+          populate: {
+            path: "comments",
+            populate: {
+              path: "user",
+            },
+          },
+        })
+        .populate("bookmarkedPosts")
+        .populate("prizesClaimed")
+        .lean();
+
+      user.posts = user.posts.sort(
+        (p1, p2) => new Date(p2.date).getTime() - new Date(p1.date).getTime()
+      );
+
+      return new Object({
+        ...user,
+        isFriend: user.friends.some((friend) => friend._id === _currentUser),
+      });
     },
     users: async (_, { _user, filter }) => {
       const userFriends = (await User.findById(_user)).friends;
@@ -191,7 +179,15 @@ export const resolvers = {
               path: "usersWhoLiked",
             },
           })
-          .populate("posts.comments.user")
+          .populate({
+            path: "posts",
+            populate: {
+              path: "comments",
+              populate: {
+                path: "user",
+              },
+            },
+          })
           .lean()
       )
         .map(
@@ -205,8 +201,18 @@ export const resolvers = {
     },
     organizer: async (_, { _organizer }) =>
       await Organizer.findById(_organizer)
-        .populate("events.usersEnrolled")
-        .populate("events.usersInterested"),
+        .populate({
+          path: "events",
+          populate: {
+            path: "usersWhoLiked",
+          },
+        })
+        .populate({
+          path: "events",
+          populate: {
+            path: "usersInterested",
+          },
+        }),
     prizes: async (_, { filter }) =>
       (
         await Prize.find({
@@ -223,6 +229,7 @@ export const resolvers = {
         photoURL: photoURL,
         points: 0,
         posts: [],
+        bookmarkedPosts: [],
         prizesClaimed: [],
         eventTags: [],
         friends: [],
@@ -233,7 +240,7 @@ export const resolvers = {
       return user;
     },
     createUserPost: async (_, { _user, description, eventTag, imageURL }) => {
-      const post = new Post({
+      const post = await Post.create({
         date: new Date(),
         description: description,
         imageURL: imageURL,
@@ -245,7 +252,7 @@ export const resolvers = {
 
       await User.findByIdAndUpdate(
         { _id: _user },
-        { $push: { posts: post }, $pull: { eventTags: eventTag } },
+        { $push: { posts: post._id }, $pull: { eventTags: eventTag } },
         { useFindAndModify: false }
       );
 
@@ -265,10 +272,22 @@ export const resolvers = {
 
       return true;
     },
+    removeFriend: async (_, { _user, _friend }) => {
+      await User.findByIdAndUpdate(
+        { _id: _user },
+        { $pull: { friends: _friend } },
+        { useFindAndModify: false }
+      );
+      await User.findByIdAndUpdate(
+        { _id: _friend },
+        { $pull: { friends: _user } },
+        { useFindAndModify: false }
+      );
+
+      return true;
+    },
     toggleEventEnrollment: async (_, { _user, _event }) => {
-      const event = (
-        await Organizer.findOne({ "events._id": _event })
-      ).events.id(_event);
+      const event = await OrganizerEvent.findById(_event);
 
       if (event.usersEnrolled.some((userId) => userId === _user)) {
         await User.findByIdAndUpdate(
@@ -276,9 +295,9 @@ export const resolvers = {
           { $pull: { enrolledEvents: _event, eventTags: event._id } },
           { useFindAndModify: false }
         );
-        await Organizer.findOneAndUpdate(
-          { "events._id": _event },
-          { $pull: { "events.$.usersEnrolled": _user } },
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $pull: { usersEnrolled: _user } },
           { useFindAndModify: false }
         );
       } else {
@@ -287,9 +306,9 @@ export const resolvers = {
           { $push: { enrolledEvents: _event, eventTags: event._id } },
           { useFindAndModify: false }
         );
-        await Organizer.findOneAndUpdate(
-          { "events._id": _event },
-          { $push: { "events.$.usersEnrolled": _user } },
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $push: { usersEnrolled: _user } },
           { useFindAndModify: false }
         );
       }
@@ -297,9 +316,7 @@ export const resolvers = {
       return true;
     },
     toggleEventInInterested: async (_, { _user, _event }) => {
-      const event = (
-        await Organizer.findOne({ "events._id": _event })
-      ).events.id(_event);
+      const event = await OrganizerEvent.findById(_event);
 
       if (event.usersInterested.some((userId) => userId === _user)) {
         await User.findByIdAndUpdate(
@@ -307,9 +324,9 @@ export const resolvers = {
           { $pull: { attractiveEvents: _event } },
           { useFindAndModify: false }
         );
-        await Organizer.findOneAndUpdate(
-          { "events._id": _event },
-          { $pull: { "events.$.usersInterested": _user } },
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $pull: { usersInterested: _user } },
           { useFindAndModify: false }
         );
       } else {
@@ -318,9 +335,9 @@ export const resolvers = {
           { $push: { attractiveEvents: _event } },
           { useFindAndModify: false }
         );
-        await Organizer.findOneAndUpdate(
-          { "events._id": _event },
-          { $push: { "events.$.usersInterested": _user } },
+        await OrganizerEvent.findByIdAndUpdate(
+          _event,
+          { $push: { usersInterested: _user } },
           { useFindAndModify: false }
         );
       }
@@ -328,29 +345,47 @@ export const resolvers = {
       return true;
     },
     toggleUserPostLike: async (_, { _user, _post }) => {
-      const post = (await User.findOne({ "posts._id": _post })).posts.id(_post);
+      const post = await Post.findById(_post);
 
       if (post.usersWhoLiked.some((userId) => userId === _user))
-        await User.findOneAndUpdate(
-          { "posts._id": _post },
-          { $pull: { "posts.$.usersWhoLiked": _user } },
+        await Post.findByIdAndUpdate(
+          _post,
+          { $pull: { usersWhoLiked: _user } },
           { useFindAndModify: false }
         );
       else
-        await User.findOneAndUpdate(
-          { "posts._id": _post },
-          { $push: { "posts.$.usersWhoLiked": _user } },
+        await Post.findByIdAndUpdate(
+          _post,
+          { $push: { usersWhoLiked: _user } },
+          { useFindAndModify: false }
+        );
+
+      return true;
+    },
+    toggleUserPostBookmark: async (_, { _user, _post }) => {
+      const user = await User.findById(_user);
+
+      if (user.bookmarkedPosts.some((postId) => postId == _post))
+        await User.findByIdAndUpdate(
+          _user,
+          { $pull: { bookmarkedPosts: _post } },
+          { useFindAndModify: false }
+        );
+      else
+        await User.findByIdAndUpdate(
+          _user,
+          { $push: { bookmarkedPosts: _post } },
           { useFindAndModify: false }
         );
 
       return true;
     },
     commentUserPost: async (_, { _post, _user, content }) => {
-      await User.findOneAndUpdate(
-        { "posts._id": _post },
+      await Post.findByIdAndUpdate(
+        _post,
         {
           $push: {
-            "posts.$.comments": new PostComment({
+            comments: new PostComment({
               content: content,
               user: _user,
               date: new Date(),
@@ -387,18 +422,22 @@ export const resolvers = {
     },
 
     verifyPost: async (_, { _post }) => {
-      const user = await User.findOne({ "posts._id": _post });
-      const eventTag = user.posts.id(_post).eventTag;
-      const event = (
-        await Organizer.findOne({
-          "events._id": eventTag,
-        })
-      ).events.id(eventTag);
+      const post = await Post.findById(_post);
+      const event = await OrganizerEvent.findById(post.eventTag);
+
+      await Post.findByIdAndUpdate(
+        _post,
+        {
+          $set: { verified: true },
+        },
+        {
+          useFindAndModify: false,
+        }
+      );
 
       await User.findOneAndUpdate(
-        { "posts._id": _post },
+        { posts: _post },
         {
-          $set: { "posts.$.verified": true },
           $inc: {
             points: Math.floor(event.price * 0.25),
           },

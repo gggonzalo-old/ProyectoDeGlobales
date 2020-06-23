@@ -5,7 +5,6 @@ import express from "express";
 import mongoose from "mongoose";
 import { typeDefs } from "./typeDefs";
 import { resolvers } from "./resolvers";
-import { OrganizerEvent } from "./models/Bussiness/OrganizerEvent";
 
 const startServer = async () => {
   const app = express();
@@ -42,7 +41,7 @@ const startServer = async () => {
           name: "Separación de residuos",
           description:
             "¡Ayudános a limpiar el medio ambiente mientras aprendés a clasificar residuos y conocés nuevos amigos!",
-          date: new Date(),
+          date: new Date(2020, 6, 5, 13, 0),
           price: 1000,
           place: "Centro de acopio UNA",
           imageURL:
@@ -54,7 +53,7 @@ const startServer = async () => {
           _id: "ManoAlPirro",
           name: "Dale una mano al Pirro",
           description: `Este mes se viene una Jornada de Limpieza de Río en el marco de la "3ra Limpieza Nacional por los Océanos" organizada por Naturenetic. Acompáñanos y dale vos también una mano al Río Pirro`,
-          date: new Date(),
+          date: new Date(2020, 5, 25, 9, 0),
           price: 1000,
           place: "Río Pirro, Heredia",
           imageURL:
@@ -67,7 +66,7 @@ const startServer = async () => {
           name: "Ayuda a comunidades afectadas por el COVID-19",
           description:
             "En apoyo a las comunidades indígenas o afectadas por el COVID-19, nos comprometemos a comprar alimentos y llevarlos a los lugares necesitados.",
-          date: new Date(),
+          date: new Date(2020, 5, 26, 10, 0),
           price: 1500,
           place:
             "Parque Polideportivo Aranjuez. Barrio Aranjuez, San José. De Iglesia Santa Teresita 300m Norte, 300m Oeste.",
@@ -110,29 +109,29 @@ const startServer = async () => {
     if (count == 0)
       collections.prizes.insertMany([
         {
-          name: "GRANIGOLO - 2 shakes a escoger",
+          name: "GRANIGOLO - Ensalada de frutas",
           description:
-            "En POPS tenemos la mejor Milkshake, porque podés combinar tus 2 sabores de helado favoritos.",
-          cost: 750,
+            "Disfrutá de una canasta de frutas con dos sabores de helado a escoger.",
+          cost: 350,
           imageURL:
-            "https://gansosbucket.s3.amazonaws.com/POPS+-+2+shakes+a+escoger.png",
+            "https://gansosbucket.s3.amazonaws.com/GRANIGOLO+-+Ensalada+de+frutas.jpg",
           QRURL: "https://gansosbucket.s3.amazonaws.com/QR+1.png",
         },
         {
-          name: "BISUTERÍA COSI - Kit de Keratina alisante brasileña",
-          description: `- 1 unidad Acondicionador 40ml\n- 1 unidad Champú 40ml\n- 1 unidad Alisado Brasileño con aceite de jojoba 90ml\n- Medidas de la caja: 14,5cm x 7cm x 3,5cm\n- Peso: 225 gramos\n- Instrucciones de uso al dorso de la caja`,
-          cost: 2000,
+          name: "LA CASONA DE MI TIERRA - Olla de carne",
+          description: `Una olla de carne llena de sabrosura, representa lo mejor de nuestra tierra. Déjate llevar del antojo, del gusto al paladar aquí en tu Casona.\nSan Pablo de Heredia, 300 N de la Iglesia Católica nueva`,
+          cost: 900,
           imageURL:
-            "https://gansosbucket.s3.amazonaws.com/Bisuter%C3%ADa+Cosi+-+Kit+de+Keratina+alisante+brasile%C3%B1a.jpg",
+            "https://gansosbucket.s3.amazonaws.com/LA+CASONA+DE+MI+TIERRA+-+Olla+de+carne.jpg",
           QRURL: "https://gansosbucket.s3.amazonaws.com/QR+2.png",
         },
         {
-          name: "VIKINGO'S PIZZA - Pizza Grande de 12 slices",
+          name: "BOBBYS's BURGERS - Combo de hamburguesa, refresco y papas",
           description:
-            "En Vikingo's pizza Tibás tenemos un sabor único y una gran variedad en nuestro menú, lasagnas espaguetis ensaladas calzone birkaflauta vikin roll y mucho más.",
-          cost: 1250,
+            "En Bobby's Burgers nos especializamos en las hamburguesas artesanales, con diferente sabores y acompañamientos.",
+          cost: 1000,
           imageURL:
-            "https://gansosbucket.s3.amazonaws.com/VIKINGO'S+PIZZA+-+Pizza+Grande+de+12+slices.jpg",
+            "https://gansosbucket.s3.amazonaws.com/BOBBYS's+BURGERS+-+Combo+de+hamburguesa%2C+refresco+y+papas.jpg",
           QRURL: "https://gansosbucket.s3.amazonaws.com/QR+3.png",
         },
       ]);

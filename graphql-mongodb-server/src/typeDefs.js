@@ -27,7 +27,9 @@ export const typeDefs = gql`
     username: String!
     name: String!
     photoURL: String!
+    points: Int!
     posts: [Post!]!
+    bookmarkedPosts: [Post!]!
     prizesClaimed: [Prize!]!
     eventTags: [String!]!
     friends: [User!]!
@@ -65,7 +67,7 @@ export const typeDefs = gql`
     events(filter: String!): [OrganizerEvent!]!
     post(_post: String!): Post!
     posts(eventTag: String!): [Post!]!
-    user(_user: String!): User!
+    user(_user: String!, _currentUser: String!): User!
     users(_user: String!, filter: String!): [User!]!
     organizer(_organizer: String!): Organizer!
     prizes(filter: String!): [Prize!]!
@@ -84,9 +86,11 @@ export const typeDefs = gql`
       imageURL: String!
     ): Boolean
     addFriend(_user: String!, _friend: String!): Boolean
+    removeFriend(_user: String!, _friend: String!): Boolean
     toggleEventEnrollment(_user: String!, _event: String!): Boolean
     toggleEventInInterested(_user: String!, _event: String!): Boolean
     toggleUserPostLike(_user: String!, _post: String!): Boolean
+    toggleUserPostBookmark(_user: String!, _post: String!): Boolean
     commentUserPost(_post: String!, _user: String!, content: String!): Boolean
     claimPrize(_prize: String!, _user: String!): Boolean
 

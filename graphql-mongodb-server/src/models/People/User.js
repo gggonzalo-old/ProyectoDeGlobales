@@ -7,7 +7,18 @@ export const User = mongoose.model("User", {
   name: String,
   photoURL: String,
   points: Number,
-  posts: [Post.schema],
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
+  bookmarkedPosts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
   prizesClaimed: [
     {
       type: mongoose.Schema.Types.ObjectId,
