@@ -94,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               Container(
-                height: 300,
+                height: 400,
                 child: TabBarView(
                   children: _buildTabViewItems(),
                 ),
@@ -416,7 +416,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               );
             },
-            child: Stack(
+            child: model.isCurrentUser == null || model.isCurrentUser == false ? SizedBox() : Stack(
               children: <Widget>[
                 Positioned(
                   right: 8,

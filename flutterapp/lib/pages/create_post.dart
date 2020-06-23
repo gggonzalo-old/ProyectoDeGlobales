@@ -196,7 +196,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         ),
                         Text(
                           "Tag",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         model.userTags.isEmpty
                             ? Padding(
@@ -248,7 +249,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             onPressed: model.dropdownValue != "" &&
                                     model.userTags.isNotEmpty &&
                                     model.image != null
-                                ? model.createPost
+                                ? _createPost
                                 : null,
                             elevation: 6,
                             shape: RoundedRectangleBorder(
@@ -263,6 +264,15 @@ class _CreatePostPageState extends State<CreatePostPage> {
                   )
                 ],
               )),
+      ),
+    );
+  }
+
+  void _createPost() async {
+    await model.createPost();
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text("Post created successfully. "),
       ),
     );
   }

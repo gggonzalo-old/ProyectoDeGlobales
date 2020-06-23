@@ -97,6 +97,7 @@ class _UserListState extends State<UsersList> {
                               "Add",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
+                                color: Colors.white
                               ),
                             ),
                             alignment: Alignment.center,
