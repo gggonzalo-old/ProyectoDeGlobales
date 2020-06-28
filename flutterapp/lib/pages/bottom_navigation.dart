@@ -4,6 +4,7 @@ import 'package:flutterapp/pages/home.dart';
 import 'package:flutterapp/pages/profile.dart';
 import 'package:flutterapp/pages/search.dart';
 import 'package:flutterapp/pages/events.dart';
+import 'package:flutterapp/utils/app_localizations.dart';
 
 class BottomNavigation extends StatefulWidget {
   @override
@@ -50,35 +51,44 @@ class _BottomNavigation extends State<BottomNavigation> {
               Icons.home,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: Text('Home'),
+            title: Text(
+              AppLocalizations.of(context)
+                  .translate("bottom_navigation_home_icon"),
+            ),
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.search,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: Text('Search'),
+            title: Text(
+              AppLocalizations.of(context)
+                  .translate("bottom_navigation_search_icon"),
+            ),
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.add_photo_alternate,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: Text('Add post'),
+            title: Text(AppLocalizations.of(context)
+                  .translate("bottom_navigation_add_post_icon"),),
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.event,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: Text('Events'),
+            title: Text(AppLocalizations.of(context)
+                  .translate("bottom_navigation_events_icon"),),
           ),
           BottomNavigationBarItem(
             icon: Icon(
               Icons.account_circle,
               color: Theme.of(context).colorScheme.onSurface,
             ),
-            title: Text('Account'),
+            title: Text(AppLocalizations.of(context)
+                  .translate("bottom_navigation_account_icon"),),
           ),
         ],
         currentIndex: _selectedIndex,

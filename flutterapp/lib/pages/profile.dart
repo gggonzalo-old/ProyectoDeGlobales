@@ -11,6 +11,7 @@ import 'package:flutterapp/pages/settings.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:flutterapp/services/data.dart';
 import 'package:flutterapp/view_models/profile_model.dart';
+import 'package:flutterapp/widgets/calendar.dart';
 import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -78,12 +79,12 @@ class _ProfilePageState extends State<ProfilePage> {
           body: ListView(
             shrinkWrap: true,
             children: <Widget>[
-              model.user.enrolledEvents.isEmpty
+              /*model.user.enrolledEvents.isEmpty
                   ? SizedBox()
                   : _buildSectionHeader(context),
               model.user.enrolledEvents.isEmpty
                   ? SizedBox()
-                  : _buildCollectionsRow(),
+                  : _buildCollectionsRow(),*/
               Container(
                 color: Theme.of(context).cardColor,
                 child: TabBar(
@@ -213,7 +214,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ];
   }
 
-  Container _buildCollectionsRow() {
+  /*Container _buildCollectionsRow() {
     return Container(
       height: 150.0,
       padding: EdgeInsets.symmetric(horizontal: 10.0),
@@ -264,7 +265,7 @@ class _ProfilePageState extends State<ProfilePage> {
         },
       ),
     );
-  }
+  } */
 
   Container _buildSectionHeader(BuildContext context) {
     return Container(
@@ -416,14 +417,16 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               );
             },
-            child: model.isCurrentUser == null || model.isCurrentUser == false ? SizedBox() : Stack(
-              children: <Widget>[
-                Positioned(
-                  right: 8,
-                  child: Icon(Icons.settings),
-                ),
-              ],
-            ),
+            child: model.isCurrentUser == null || model.isCurrentUser == false
+                ? SizedBox()
+                : Stack(
+                    children: <Widget>[
+                      Positioned(
+                        right: 8,
+                        child: Icon(Icons.settings),
+                      ),
+                    ],
+                  ),
           ),
           Container(
             padding: EdgeInsets.only(
@@ -537,6 +540,31 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                 ),
+          model.isCurrentUser
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 50.0, top: 50),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      GestureDetector(
+                        onTap: () => {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CalendarPage(),
+                            ),
+                          )
+                        },
+                        child: Text(
+                          "Events",
+                          style: TextStyle(
+                              color: Theme.of(context).textSelectionColor),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : SizedBox(),
         ],
       ),
     );

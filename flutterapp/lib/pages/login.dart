@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutterapp/utils/app_localizations.dart';
 import 'package:flutterapp/view_models/log_in_model.dart';
 import 'package:flutterapp/services/authentication.dart';
 import 'package:provider/provider.dart';
@@ -57,7 +58,7 @@ class _LogInPage extends State<LogInPage> {
                 ),
               ),
               _buildThirdPartySignIn(context),
-          SizedBox(
+              SizedBox(
                 height: 40.0,
               ),
             ],
@@ -114,7 +115,10 @@ class _LogInPage extends State<LogInPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Image.asset("assets/images/facebook-logo.png"),
-                        Text("Sign in with Facebook", style: TextStyle(fontSize: 18)),
+                        Text(
+                            AppLocalizations.of(context)
+                                .translate("login_log_in_with_facebook"),
+                            style: TextStyle(fontSize: 18)),
                       ],
                     ),
                     textColor: Colors.white,
@@ -136,7 +140,11 @@ class _LogInPage extends State<LogInPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Image.asset("assets/images/google-logo.png"),
-                        Text("Sign in with Google", style: TextStyle(fontSize: 18),),
+                        Text(
+                          AppLocalizations.of(context)
+                              .translate("login_log_in_with_google"),
+                          style: TextStyle(fontSize: 18),
+                        ),
                       ],
                     ),
                     textColor: Colors.black,

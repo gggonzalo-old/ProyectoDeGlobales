@@ -19,6 +19,8 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     final themeChanger = Provider.of<ThemeChanger>(context, listen: false);
     isDarkMode = ThemeData.light() == themeChanger.getTheme() ? false : true;
+    switchThemeText =
+        ThemeData.light() == themeChanger.getTheme() ? "Off" : "On";
   }
 
   Future<void> _signOut(BuildContext context) async {
